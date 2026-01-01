@@ -20,8 +20,21 @@ export default function LoginPage() {
     };
 
     const handleSocialLogin = async (provider: 'google' | 'github') => {
-        const { error } = await supabase.auth.signInWithOAuth({ provider });
-        if (error) alert(error.message);
+        const redirectTo = typeof window !== 'undefined'
+            ? `${window.location.origin}/auth/callback`
+            : '';
+
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider,
+            options: {
+                redirectTo: redirectTo
+            }
+        });
+
+        if (error) {
+            console.error('Social Login Error:', error.message);
+            alert(`로그인 오류: ${error.message}`);
+        }
     };
 
     return (

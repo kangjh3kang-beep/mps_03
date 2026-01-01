@@ -9,11 +9,30 @@ class SupabaseService {
 
   // Authentication
   Future<AuthResponse> signIn(String email, String password) async {
-    return await _client.auth.signInWithPassword(email: email, password: password);
+    try {
+      return await _client.auth.signInWithPassword(email: email, password: password);
+    } catch (e) {
+      throw Exception('로그인 실패: $e');
+    }
+  }
+
+  Future<void> signInWithGoogle() async {
+    try {
+      await _client.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: 'io.supabase.manpasik://login-callback',
+      );
+    } catch (e) {
+      throw Exception('구글 로그인 실패: $e');
+    }
   }
 
   Future<void> signOut() async {
-    await _client.auth.signOut();
+    try {
+      await _client.auth.signOut();
+    } catch (e) {
+      print('로그아웃 오류: $e');
+    }
   }
 
   // Data Sync: Measurements
