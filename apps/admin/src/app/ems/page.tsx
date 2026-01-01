@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import {
     Globe, Users, Activity, AlertTriangle, ShieldCheck, Zap,
