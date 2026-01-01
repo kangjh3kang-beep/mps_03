@@ -1,0 +1,69 @@
+name: mps_app
+description: 만파식 생태계 통합 앱
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^8.1.3
+  hydrated_bloc: ^9.1.2
+  go_router: ^12.1.1
+  dio: ^5.4.0
+  retrofit: ^4.0.3
+  web_socket_channel: ^2.4.0
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  shared_preferences: ^2.2.2
+  flutter_secure_storage: ^9.0.0
+  flutter_blue_plus: ^1.28.8
+  nfc_manager: ^3.3.0
+  flutter_svg: ^2.0.9
+  cached_network_image: ^3.3.0
+  shimmer: ^3.0.0
+  fl_chart: ^0.65.0
+  syncfusion_flutter_charts: ^24.1.41
+  camera: ^0.10.5+5
+  image_picker: ^1.0.4
+  agora_rtc_engine: ^6.2.4
+  permission_handler: ^11.1.0
+  tflite_flutter: ^0.10.4
+  health: ^8.1.0
+  firebase_core: ^2.24.2
+  firebase_messaging: ^14.7.10
+  flutter_local_notifications: ^16.2.0
+  supabase_flutter: ^2.0.0
+  intl: ^0.18.1
+  uuid: ^4.2.1
+  equatable: ^2.0.5
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.8.1
+  dartz: ^0.10.1
+  get_it: ^7.6.4
+  injectable: ^2.3.2
+  ffi: ^2.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  build_runner: ^2.4.7
+  freezed: ^2.4.5
+  json_serializable: ^6.7.1
+  retrofit_generator: ^8.0.6
+  hive_generator: ^2.0.1
+  injectable_generator: ^2.4.1
+  mockito: ^5.4.4
+  bloc_test: ^9.1.5
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/fonts/
+    - assets/animations/
+    - assets/models/

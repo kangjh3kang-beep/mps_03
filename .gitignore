@@ -1,0 +1,36 @@
+# Node.js
+node_modules/
+dist/
+build/
+.env*
+.vercel
+
+# Flutter
+.dart_tool/
+.packages
+.pub/
+.pub-cache/
+build/
+ios/Flutter/.last_build_id
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+android/app/src/main/res/values/strings.xml
+*.lock
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
