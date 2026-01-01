@@ -6,8 +6,8 @@ void main() async {
   
   // Supabase 초기화
   await Supabase.initialize(
-    url: 'https://your-project-url.supabase.co',
-    anonKey: 'your-anon-key',
+    url: 'https://ekzytlhdggejhhhmfznw.supabase.co',
+    anonKey: 'sb_publishable_IzgXxLME7nu71IDB0ESc3A_F983TXqA',
   );
   
   // Hive 초기화
