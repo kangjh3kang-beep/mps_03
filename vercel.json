@@ -1,0 +1,5 @@
+{
+    "buildCommand": "npm run build --prefix apps/admin",
+    "installCommand": "npm install --prefix apps/admin",
+    "outputDirectory": "apps/admin/.next"
+}
