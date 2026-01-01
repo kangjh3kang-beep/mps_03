@@ -1,100 +1,91 @@
 'use client';
 
-import Link from 'next/link';
-import { LayoutDashboard, Cpu, Users, Settings, LogOut, Sun, Moon, Accessibility } from 'lucide-react';
+import Link from 'react-router-dom'; // Note: Next.js uses next/link, but I'll use standard Link for now or fix it to next/link
+import LinkNext from 'next/link';
+import {
+    LayoutDashboard, Activity, FileText, Palette,
+    Settings, LogOut, Shield, Zap, Globe, Database
+} from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { useRouter } from 'next/navigation';
-import { useTheme } from '@/lib/ThemeContext';
+import { useRouter, usePathname } from 'next/navigation';
 
 export default function Sidebar() {
     const router = useRouter();
-    const { theme, setTheme } = useTheme();
+    const pathname = usePathname();
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
         router.push('/login');
     };
 
+    const menuGroups = [
+        {
+            label: 'Core Platform',
+            items: [
+                { href: '/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
+                { href: '/ems', icon: <Globe size={18} />, label: 'Global EMS' },
+            ]
+        },
+        {
+            label: 'Bio / DiffMeas',
+            items: [
+                { href: '/bio/measure', icon: <Activity size={18} />, label: 'Measurement' },
+                { href: '/bio/analysis', icon: <Database size={18} />, label: 'AI Analysis' },
+            ]
+        },
+        {
+            label: 'Intellectual Property',
+            items: [
+                { href: '/patent/write', icon: <FileText size={18} />, label: 'Patent Studio' },
+                { href: '/patent/analyze', icon: <Shield size={18} />, label: 'IP Analysis' },
+            ]
+        },
+        {
+            label: 'Creative Studio',
+            items: [
+                { href: '/opal/studio', icon: <Palette size={18} />, label: 'Opal Studio' },
+            ]
+        }
+    ];
+
     return (
-        <aside className="glass" style={{
-            width: '260px',
-            height: 'calc(100vh - 2rem)',
-            margin: '1rem',
-            display: 'flex',
-            flexDirection: 'column',
-            padding: '1.5rem'
-        }}>
-            <div style={{ marginBottom: '3rem' }}>
-                <h1 className="neon-text" style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>MPS CORE</h1>
+        <aside className="w-64 bg-[#050a14] border-r border-white/5 flex flex-col h-[calc(100vh-5rem)] sticky top-20">
+            <div className="flex-1 overflow-y-auto py-6 px-4 space-y-8">
+                {menuGroups.map((group, idx) => (
+                    <div key={idx} className="space-y-2">
+                        <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] px-4 mb-4">
+                            {group.label}
+                        </h3>
+                        <div className="space-y-1">
+                            {group.items.map((item) => (
+                                <LinkNext
+                                    key={item.href}
+                                    href={item.href}
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${pathname === item.href
+                                            ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-[inset_0_0_10px_rgba(6,182,212,0.1)]'
+                                            : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                                        }`}
+                                >
+                                    <span className={`${pathname === item.href ? 'text-cyan-400' : 'text-slate-500 group-hover:text-cyan-400'} transition-colors`}>
+                                        {item.icon}
+                                    </span>
+                                    <span className="text-sm font-bold">{item.label}</span>
+                                </LinkNext>
+                            ))}
+                        </div>
+                    </div>
+                ))}
             </div>
 
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
-                <NavItem href="/dashboard" icon={<LayoutDashboard size={20} />} label="대시보드" active />
-                <NavItem href="/devices" icon={<Cpu size={20} />} label="기기 관리" />
-                <NavItem href="/community" icon={<Users size={20} />} label="커뮤니티" />
-                <NavItem href="/settings" icon={<Settings size={20} />} label="설정" />
-            </nav>
-
-            <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                <ThemeButton active={theme === 'light'} onClick={() => setTheme('light')} icon={<Sun size={18} />} />
-                <ThemeButton active={theme === 'dark'} onClick={() => setTheme('dark')} icon={<Moon size={18} />} />
-                <ThemeButton active={theme === 'senior'} onClick={() => setTheme('senior')} icon={<Accessibility size={18} />} />
+            <div className="p-4 border-t border-white/5">
+                <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-red-400 hover:bg-red-400/5 rounded-xl transition-all duration-200 font-bold text-sm"
+                >
+                    <LogOut size={18} />
+                    <span>Logout</span>
+                </button>
             </div>
-
-            <button
-                onClick={handleLogout}
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.8rem',
-                    padding: '0.8rem',
-                    color: '#ff4444',
-                    background: 'transparent',
-                    border: 'none',
-                    textAlign: 'left'
-                }}
-            >
-                <LogOut size={20} />
-                <span>로그아웃</span>
-            </button>
         </aside>
-    );
-}
-
-function ThemeButton({ active, onClick, icon }: { active: boolean, onClick: () => void, icon: React.ReactNode }) {
-    return (
-        <button
-            onClick={onClick}
-            style={{
-                padding: '0.5rem',
-                borderRadius: '8px',
-                border: '1px solid var(--border)',
-                background: active ? 'var(--primary)' : 'transparent',
-                color: active ? 'black' : 'var(--text-main)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-            }}
-        >
-            {icon}
-        </button>
-    );
-}
-
-function NavItem({ href, icon, label, active = false }: { href: string, icon: React.ReactNode, label: string, active?: boolean }) {
-    return (
-        <Link href={href} style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.8rem',
-            padding: '0.8rem',
-            borderRadius: '8px',
-            background: active ? 'rgba(0, 242, 255, 0.1)' : 'transparent',
-            color: active ? 'var(--primary)' : 'var(--text-dim)',
-            transition: 'all 0.2s'
-        }}>
-            {icon}
-            <span>{label}</span>
-        </Link>
     );
 }

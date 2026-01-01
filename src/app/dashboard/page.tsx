@@ -1,117 +1,133 @@
 'use client';
 
+import React from 'react';
+import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
-import { Cpu, MessageSquare, Activity, Zap } from 'lucide-react';
+import { Activity, FileText, Palette, TrendingUp, Shield, Zap } from 'lucide-react';
 
 export default function DashboardPage() {
     return (
-        <div style={{ display: 'flex', minHeight: '100vh', background: '#050a14' }}>
-            <Sidebar />
+        <div className="min-h-screen bg-[#050a14] text-white">
+            <Navbar />
+            <div className="flex pt-20">
+                <Sidebar />
 
-            <main style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
-                <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                        <h2 style={{ fontSize: '1.8rem', fontWeight: 'bold' }}>시스템 개요</h2>
-                        <p style={{ color: 'var(--text-dim)' }}>만파식 생태계의 실시간 상태를 확인하세요.</p>
+                <main className="flex-1 p-8">
+                    <header className="mb-10">
+                        <h1 className="text-4xl font-black tracking-tight bg-gradient-to-r from-white to-slate-500 bg-clip-text text-transparent">
+                            Enterprise Overview
+                        </h1>
+                        <p className="text-slate-500 mt-2">만파식 엔터프라이즈 생태계 통합 관리 보드</p>
+                    </header>
+
+                    {/* Widget Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                        {/* Bio Status Widget */}
+                        <div className="glass p-8 border-cyan-500/20 hover:border-cyan-500/40 transition-all">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-bold flex items-center gap-2">
+                                    <Activity className="text-cyan-400" size={20} /> Bio Status
+                                </h2>
+                                <span className="px-2 py-1 bg-cyan-500/10 text-cyan-400 text-[10px] font-black rounded">LIVE</span>
+                            </div>
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-end">
+                                    <span className="text-slate-400 text-sm">최근 측정 지수</span>
+                                    <span className="text-3xl font-black">98.4 <small className="text-xs font-normal text-slate-500">mg/dL</small></span>
+                                </div>
+                                <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                                    <div className="h-full bg-cyan-500 w-[75%] shadow-[0_0_10px_#06b6d4]"></div>
+                                </div>
+                                <p className="text-xs text-slate-500">안정적인 생체 신호가 감지되고 있습니다.</p>
+                            </div>
+                        </div>
+
+                        {/* Patent Jobs Widget */}
+                        <div className="glass p-8 border-purple-500/20 hover:border-purple-500/40 transition-all">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-bold flex items-center gap-2">
+                                    <FileText className="text-purple-400" size={20} /> Patent Jobs
+                                </h2>
+                                <span className="px-2 py-1 bg-purple-500/10 text-purple-400 text-[10px] font-black rounded">3 ACTIVE</span>
+                            </div>
+                            <div className="space-y-3">
+                                <PatentItem title="EHD Gas Sensor Algorithm" status="Analyzing" progress={65} />
+                                <PatentItem title="Self-Healing Mesh Network" status="Drafting" progress={30} />
+                                <PatentItem title="Bio-Signal Encryption" status="Review" progress={90} />
+                            </div>
+                        </div>
+
+                        {/* Opal Projects Widget */}
+                        <div className="glass p-8 border-amber-500/20 hover:border-amber-500/40 transition-all">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-xl font-bold flex items-center gap-2">
+                                    <Palette className="text-amber-400" size={20} /> Opal Projects
+                                </h2>
+                                <span className="px-2 py-1 bg-amber-500/10 text-amber-400 text-[10px] font-black rounded">NEW FEED</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="aspect-square bg-slate-800/50 rounded-xl border border-white/5 flex items-center justify-center">
+                                    <Zap size={24} className="text-slate-600" />
+                                </div>
+                                <div className="aspect-square bg-slate-800/50 rounded-xl border border-white/5 flex items-center justify-center">
+                                    <Shield size={24} className="text-slate-600" />
+                                </div>
+                            </div>
+                            <button className="w-full mt-6 py-3 bg-amber-500/10 text-amber-400 text-xs font-bold rounded-xl border border-amber-500/20 hover:bg-amber-500/20 transition-all">
+                                스튜디오 입장
+                            </button>
+                        </div>
+
                     </div>
-                    <div className="glass" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00ff00', boxShadow: '0 0 5px #00ff00' }}></div>
-                        <span style={{ fontSize: '0.9rem' }}>서버 정상 작동 중</span>
-                    </div>
-                </header>
 
-                <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
-                    <StatusCard
-                        title="연결된 기기"
-                        value="12"
-                        unit="Units"
-                        icon={<Cpu className="neon-text" />}
-                        trend="+2 신규"
-                    />
-                    <StatusCard
-                        title="실시간 로그"
-                        value="1,284"
-                        unit="Events/hr"
-                        icon={<Activity className="neon-text" />}
-                        trend="안정적"
-                    />
-                    <StatusCard
-                        title="시스템 부하"
-                        value="24"
-                        unit="%"
-                        icon={<Zap className="neon-text" />}
-                        trend="최적화됨"
-                    />
-                </section>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2rem' }}>
-                    {/* 기기 상태 요약 */}
-                    <div className="glass" style={{ padding: '1.5rem' }}>
-                        <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <Cpu size={20} /> 기기 상태 요약
-                        </h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <DeviceItem name="MPS-Alpha-01" status="online" lastSeen="방금 전" />
-                            <DeviceItem name="MPS-Beta-04" status="online" lastSeen="2분 전" />
-                            <DeviceItem name="MPS-Gamma-09" status="offline" lastSeen="1시간 전" />
+                    {/* Secondary Row */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+                        <div className="glass p-8 border-white/5">
+                            <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
+                                <TrendingUp className="text-green-400" size={18} /> Global Health Trend
+                            </h3>
+                            <div className="h-48 bg-slate-950/50 rounded-2xl border border-white/5 flex items-center justify-center">
+                                <span className="text-slate-600 text-xs font-mono">TREND_VISUALIZATION_READY</span>
+                            </div>
+                        </div>
+                        <div className="glass p-8 border-white/5">
+                            <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
+                                <Shield className="text-blue-400" size={18} /> Security Audit Trail
+                            </h3>
+                            <div className="space-y-4">
+                                <AuditLog time="17:24" action="Auth Key Rotation" status="Success" />
+                                <AuditLog time="16:12" action="External Data Sync" status="Verified" />
+                                <AuditLog time="15:05" action="System Self-Healing" status="Resolved" />
+                            </div>
                         </div>
                     </div>
-
-                    {/* 커뮤니티 최신 피드 */}
-                    <div className="glass" style={{ padding: '1.5rem' }}>
-                        <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <MessageSquare size={20} /> 최신 커뮤니티 소식
-                        </h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-                            <FeedItem author="김철수" title="새로운 카트리지 사용 후기" time="10분 전" />
-                            <FeedItem author="이영희" title="하드웨어 펌웨어 업데이트 안내" time="1시간 전" />
-                            <FeedItem author="박민수" title="데이터 분석 팁 공유합니다" time="3시간 전" />
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    );
-}
-
-function StatusCard({ title, value, unit, icon, trend }: any) {
-    return (
-        <div className="glass" style={{ padding: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <span style={{ color: 'var(--text-dim)', fontSize: '0.9rem' }}>{title}</span>
-                {icon}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-                <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>{value}</span>
-                <span style={{ color: 'var(--text-dim)', fontSize: '0.9rem' }}>{unit}</span>
-            </div>
-            <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--primary)' }}>
-                {trend}
+                </main>
             </div>
         </div>
     );
 }
 
-function DeviceItem({ name, status, lastSeen }: any) {
+function PatentItem({ title, status, progress }: any) {
     return (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.8rem', borderRadius: '8px', background: 'rgba(255,255,255,0.03)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: status === 'online' ? '#00ff00' : '#ff4444' }}></div>
-                <span>{name}</span>
+        <div className="space-y-1">
+            <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest">
+                <span className="text-slate-400">{title}</span>
+                <span className="text-purple-400">{status}</span>
             </div>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>{lastSeen}</span>
+            <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-purple-500" style={{ width: `${progress}%` }}></div>
+            </div>
         </div>
     );
 }
 
-function FeedItem({ author, title, time }: any) {
+function AuditLog({ time, action, status }: any) {
     return (
-        <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '0.8rem' }}>
-            <h4 style={{ fontSize: '1rem', marginBottom: '0.3rem' }}>{title}</h4>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-dim)' }}>
-                <span>{author}</span>
-                <span>{time}</span>
-            </div>
+        <div className="flex justify-between items-center text-xs border-b border-white/5 pb-2">
+            <span className="text-slate-500 font-mono">{time}</span>
+            <span className="font-medium">{action}</span>
+            <span className="text-blue-400 font-bold">{status}</span>
         </div>
     );
 }
