@@ -1,0 +1,75 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "mps_app (development)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/apps/mobile",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=ENV=development",
+        "--dart-define=SUPABASE_URL=https://your-project.supabase.co",
+        "--dart-define=SUPABASE_ANON_KEY=your-anon-key",
+        "--dart-define=AGORA_APP_ID=your-agora-app-id",
+        "--dart-define=AI_SERVICE_URL=http://localhost:8000",
+        "--dart-define=ENABLE_TELEMEDICINE=true",
+        "--dart-define=ENABLE_GLOBAL_CHAT=true",
+        "--dart-define=ENABLE_AI_COACH=true",
+        "--dart-define=ENABLE_OFFLINE_MODE=true"
+      ]
+    },
+    {
+      "name": "mps_app (staging)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/apps/mobile",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=ENV=staging",
+        "--dart-define=SUPABASE_URL=https://staging-project.supabase.co",
+        "--dart-define=SUPABASE_ANON_KEY=your-staging-anon-key",
+        "--dart-define=AGORA_APP_ID=your-agora-app-id",
+        "--dart-define=AI_SERVICE_URL=https://ai-staging.manpasik.com",
+        "--dart-define=ENABLE_TELEMEDICINE=true",
+        "--dart-define=ENABLE_GLOBAL_CHAT=true",
+        "--dart-define=ENABLE_AI_COACH=true",
+        "--dart-define=ENABLE_OFFLINE_MODE=true"
+      ]
+    },
+    {
+      "name": "mps_app (production)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/apps/mobile",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=ENV=production",
+        "--dart-define=SUPABASE_URL=https://prod-project.supabase.co",
+        "--dart-define=SUPABASE_ANON_KEY=your-production-anon-key",
+        "--dart-define=AGORA_APP_ID=your-agora-app-id",
+        "--dart-define=AI_SERVICE_URL=https://ai.manpasik.com",
+        "--dart-define=ENABLE_TELEMEDICINE=true",
+        "--dart-define=ENABLE_GLOBAL_CHAT=true",
+        "--dart-define=ENABLE_AI_COACH=true",
+        "--dart-define=ENABLE_OFFLINE_MODE=true"
+      ]
+    },
+    {
+      "name": "mps_app (profile)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/apps/mobile",
+      "program": "lib/main.dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "mps_app (release)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}/apps/mobile",
+      "program": "lib/main.dart",
+      "flutterMode": "release"
+    }
+  ]
+}

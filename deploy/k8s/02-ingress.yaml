@@ -1,0 +1,201 @@
+---
+# API Gateway Ingress with TLS
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-gateway-ingress
+  namespace: manpasik
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - api.manpasik.com
+    - app.manpasik.com
+    secretName: mps-tls-cert
+  rules:
+  - host: api.manpasik.com
+    http:
+      paths:
+      - path: /auth
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-service
+            port:
+              number: 8001
+      - path: /measurement
+        pathType: Prefix
+        backend:
+          service:
+            name: measurement-service
+            port:
+              number: 8002
+      - path: /ai
+        pathType: Prefix
+        backend:
+          service:
+            name: ai-service
+            port:
+              number: 3003
+      - path: /payment
+        pathType: Prefix
+        backend:
+          service:
+            name: payment-service
+            port:
+              number: 3004
+      - path: /notification
+        pathType: Prefix
+        backend:
+          service:
+            name: notification-service
+            port:
+              number: 3005
+      - path: /video
+        pathType: Prefix
+        backend:
+          service:
+            name: video-service
+            port:
+              number: 3006
+      - path: /translate
+        pathType: Prefix
+        backend:
+          service:
+            name: translation-service
+            port:
+              number: 3007
+      - path: /data
+        pathType: Prefix
+        backend:
+          service:
+            name: data-service
+            port:
+              number: 3008
+      - path: /admin
+        pathType: Prefix
+        backend:
+          service:
+            name: admin-service
+            port:
+              number: 3009
+  - host: app.manpasik.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-gateway
+            port:
+              number: 8080
+
+---
+# Network Policy: Allow ingress from gateway to services
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mps-allow-gateway
+  namespace: manpasik
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: api-gateway
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+
+---
+# Network Policy: Allow services to communicate
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mps-allow-internal
+  namespace: manpasik
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector: {}
+    - namespaceSelector:
+        matchLabels:
+          name: manpasik
+  egress:
+  - to:
+    - podSelector: {}
+    - namespaceSelector:
+        matchLabels:
+          name: manpasik
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+
+---
+# PodDisruptionBudget for API Gateway
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-gateway-pdb
+  namespace: manpasik
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+
+---
+# PodDisruptionBudget for Database Services
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: postgres-pdb
+  namespace: manpasik
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: postgres
+
+---
+# PodDisruptionBudget for MongoDB
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: mongo-pdb
+  namespace: manpasik
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: mongo
+
+---
+# PodDisruptionBudget for Redis
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: redis-pdb
+  namespace: manpasik
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: redis

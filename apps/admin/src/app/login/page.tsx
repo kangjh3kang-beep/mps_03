@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { authService } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
@@ -13,15 +13,18 @@ export default function LoginPage() {
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) alert(error.message);
-        else router.push('/dashboard');
-        setLoading(false);
+        try {
+            await authService.login(email, password);
+            router.push('/dashboard');
+        } catch (error: any) {
+            alert(error.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleSocialLogin = async (provider: 'google' | 'github') => {
-        const { error } = await supabase.auth.signInWithOAuth({ provider });
-        if (error) alert(error.message);
+        alert('소셜 로그인은 현재 준비 중입니다.');
     };
 
     return (

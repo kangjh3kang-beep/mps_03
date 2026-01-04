@@ -1,0 +1,153 @@
+# Manpasik Health Ecosystem - Cursor AI Rules
+
+## Project Overview
+Manpasik is a comprehensive health ecosystem platform with microservices architecture.
+- **Frontend**: Flutter Mobile App (151 routes), Next.js Web Admin
+- **Backend**: 10 microservices (Go, Node.js, Python)
+- **Infrastructure**: Docker, Kubernetes, Helm, AWS/GCP/Azure
+- **Databases**: PostgreSQL, MongoDB, Redis
+
+## Tech Stack
+### Backend Services
+| Service | Language | Framework | Port |
+|---------|----------|-----------|------|
+| Auth | Go 1.21 | Gin | 8001 |
+| Measurement | Node.js 18 | Express | 8002 |
+| AI | Python 3.11 | FastAPI | 3003 |
+| Payment | Node.js 18 | Express | 3004 |
+| Notification | Node.js 18 | Express | 3005 |
+| Video | Node.js 18 | Express | 3006 |
+| Translation | Python 3.11 | FastAPI | 3007 |
+| Data | Node.js 18 | Express | 3008 |
+| Admin | Go 1.21 | Gin | 3009 |
+| Gateway | Nginx | - | 8080 |
+
+### Frontend
+- **Mobile**: Flutter 3.x (Dart) - Cross-platform iOS, Android, Web
+- **Admin**: Next.js 13+, TypeScript, TailwindCSS
+
+## Directory Structure
+```
+manpasik-ecosystem/
+├── apps/
+│   ├── admin/           # Next.js Web Admin
+│   └── mobile/          # Flutter Mobile App
+├── backend/
+│   ├── services/        # All microservices
+│   ├── gateway/         # Nginx API Gateway
+│   └── shared/          # Shared libraries
+├── deploy/
+│   ├── k8s/             # Kubernetes manifests
+│   ├── helm/            # Helm charts
+│   ├── terraform/       # IaC
+│   └── supabase/        # Database schema
+├── tests/               # Integration & Load tests
+└── docs/                # Documentation
+```
+
+## Coding Standards
+
+### Dart/Flutter
+- Follow official Dart style guide
+- Use Provider or Riverpod for state management
+- Prefer composition over inheritance
+- Always handle errors with try-catch blocks
+- Use const constructors when possible
+- Implement proper null safety
+
+### TypeScript/JavaScript (Node.js, Next.js)
+- Use ES6+ features
+- Follow ESLint rules
+- Use async/await over promises
+- Implement proper error handling with try-catch
+- Use TypeScript strict mode
+- Prefer functional components in React
+
+### Go
+- Follow Effective Go guidelines
+- Use go vet and golint
+- Implement proper error handling (no panic for expected errors)
+- Use goroutines and channels appropriately
+- Follow standard project layout
+
+### Python
+- Follow PEP 8 style guide
+- Use type hints
+- Use async/await for FastAPI endpoints
+- Implement Pydantic models for validation
+- Use pytest for testing
+
+## API Design
+- RESTful API design principles
+- Use proper HTTP methods (GET, POST, PUT, DELETE, PATCH)
+- Return appropriate status codes
+- Include proper error messages in responses
+- All endpoints require JWT authentication (except /health)
+
+## Security Best Practices
+- Never commit secrets or credentials
+- Use environment variables for configuration
+- Implement rate limiting
+- Validate all user inputs
+- Use parameterized queries for database operations
+- Implement CORS properly
+
+## Testing Requirements
+- Unit tests for all business logic
+- Integration tests for API endpoints
+- Load tests for critical paths
+- Test coverage > 80%
+
+## Commit Message Format
+```
+type(scope): description
+
+feat: 새로운 기능
+fix: 버그 수정
+docs: 문서 변경
+style: 코드 포맷팅
+refactor: 리팩토링
+test: 테스트 추가/수정
+chore: 빌드/설정 변경
+```
+
+## Korean Language Support
+- 한국어 주석 및 문서 작성 권장
+- UI 텍스트는 i18n 지원
+- 에러 메시지는 다국어 지원
+
+## Database Schema
+- PostgreSQL: 사용자, 인증, 결제, 관리자 데이터
+- MongoDB: 측정 데이터, 문서
+- Redis: 캐시, 세션, 실시간 데이터
+
+## Environment Files
+- `.env.development` - 개발 환경
+- `.env.production` - 프로덕션 환경
+- `.env.local` - 로컬 오버라이드 (git 무시)
+
+## Important Endpoints
+```
+POST /auth/register - 사용자 등록
+POST /auth/login - 로그인
+POST /measurement/create - 측정 기록
+POST /ai/analyze - AI 분석
+POST /payment/process - 결제 처리
+POST /video/session - 화상 상담 세션
+```
+
+## Microservices Communication
+- Synchronous: REST API via API Gateway
+- Asynchronous: Message Queue (RabbitMQ/Redis)
+- Service Discovery: Kubernetes DNS
+
+## Deployment
+- Local: docker-compose
+- Staging/Production: Kubernetes (EKS/GKE/AKS)
+- CI/CD: GitHub Actions
+
+## Monitoring
+- Metrics: Prometheus
+- Visualization: Grafana
+- Logging: ELK Stack
+- Tracing: Jaeger (optional)

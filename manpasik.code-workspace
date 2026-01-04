@@ -1,0 +1,35 @@
+{
+    "folders": [
+        {
+            "name": "Root",
+            "path": "."
+        },
+        {
+            "name": "Mobile App (Flutter)",
+            "path": "apps/mobile"
+        },
+        {
+            "name": "Admin Panel (Next.js)",
+            "path": "apps/admin"
+        },
+        {
+            "name": "Backend Server (NestJS)",
+            "path": "apps/backend"
+        }
+    ],
+    "settings": {
+        "files.exclude": {
+            "**/node_modules": true,
+            "**/.dart_tool": true,
+            "**/.idea": true,
+            "**/.git": true,
+            "**/build": true
+        },
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "[dart]": {
+            "editor.formatOnSave": true,
+            "editor.defaultFormatter": "Dart-Code.dart-code"
+        }
+    }
+}

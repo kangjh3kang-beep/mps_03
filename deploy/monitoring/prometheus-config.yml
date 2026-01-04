@@ -1,0 +1,149 @@
+# Prometheus Configuration for Manpasik Ecosystem
+# 모니터링 설정
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'manpasik-production'
+    env: 'production'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+scrape_configs:
+  # Prometheus 자체 모니터링
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # API Gateway
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8080']
+    metrics_path: /metrics
+
+  # Auth Service (Go)
+  - job_name: 'auth-service'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names: ['manpasik']
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: auth-service
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_ip]
+        target_label: __address__
+        replacement: ${1}:8001
+
+  # Measurement Service (Node.js)
+  - job_name: 'measurement-service'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names: ['manpasik']
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: measurement-service
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_ip]
+        target_label: __address__
+        replacement: ${1}:8002
+
+  # AI Service (Python/FastAPI)
+  - job_name: 'ai-service'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names: ['manpasik']
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: ai-service
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_ip]
+        target_label: __address__
+        replacement: ${1}:3003
+
+  # Payment Service
+  - job_name: 'payment-service'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names: ['manpasik']
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: payment-service
+        action: keep
+
+  # Notification Service
+  - job_name: 'notification-service'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names: ['manpasik']
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: notification-service
+        action: keep
+
+  # Video Service
+  - job_name: 'video-service'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names: ['manpasik']
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: video-service
+        action: keep
+
+  # PostgreSQL
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+
+  # MongoDB
+  - job_name: 'mongodb'
+    static_configs:
+      - targets: ['mongodb-exporter:9216']
+
+  # Redis
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+  # Node Exporter (Host Metrics)
+  - job_name: 'node'
+    kubernetes_sd_configs:
+      - role: node
+    relabel_configs:
+      - source_labels: [__address__]
+        regex: '(.*):10250'
+        replacement: '${1}:9100'
+        target_label: __address__
+
+  # Kubernetes Metrics
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__
+

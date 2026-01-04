@@ -1,0 +1,317 @@
+# Default values for Manpasik Helm chart
+# This is a YAML-formatted file.
+# Declare variables to be passed into templates
+
+# Global settings
+global:
+  environment: production
+  domain: manpasik.com
+  imagePullPolicy: IfNotPresent
+
+# Image repository
+image:
+  registry: ghcr.io
+  organization: manpasik
+
+# Namespace configuration
+namespace:
+  name: manpasik
+  create: true
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+  hosts:
+    - host: api.manpasik.com
+      paths:
+        - path: /
+          pathType: Prefix
+    - host: app.manpasik.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    enabled: true
+    secretName: mps-tls-cert
+
+# Database configuration
+postgresql:
+  enabled: true
+  auth:
+    username: manpasik
+    password: "changeme"
+    database: mps_db
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+  metrics:
+    enabled: true
+
+mongodb:
+  enabled: true
+  auth:
+    username: manpasik
+    password: "changeme"
+  persistence:
+    enabled: true
+    size: 10Gi
+
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "changeme"
+  persistence:
+    enabled: true
+    size: 2Gi
+
+# Service configurations
+services:
+  auth-service:
+    enabled: true
+    replicas: 2
+    image: mps-auth-service
+    port: 8001
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+
+  measurement-service:
+    enabled: true
+    replicas: 2
+    image: mps-measurement-service
+    port: 8002
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 75
+
+  ai-service:
+    enabled: true
+    replicas: 2
+    image: mps-ai-service
+    port: 3003
+    resources:
+      requests:
+        cpu: 150m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 15
+      targetCPUUtilizationPercentage: 70
+
+  payment-service:
+    enabled: true
+    replicas: 2
+    image: mps-payment-service
+    port: 3004
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+
+  notification-service:
+    enabled: true
+    replicas: 2
+    image: mps-notification-service
+    port: 3005
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+
+  video-service:
+    enabled: true
+    replicas: 2
+    image: mps-video-service
+    port: 3006
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 15
+      targetCPUUtilizationPercentage: 70
+
+  translation-service:
+    enabled: true
+    replicas: 2
+    image: mps-translation-service
+    port: 3007
+    resources:
+      requests:
+        cpu: 150m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 15
+      targetCPUUtilizationPercentage: 70
+
+  data-service:
+    enabled: true
+    replicas: 2
+    image: mps-data-service
+    port: 3008
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+
+  admin-service:
+    enabled: true
+    replicas: 2
+    image: mps-admin-service
+    port: 3009
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 5
+      targetCPUUtilizationPercentage: 75
+
+  api-gateway:
+    enabled: true
+    replicas: 3
+    image: mps-api-gateway
+    port: 8080
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 3
+      maxReplicas: 20
+      targetCPUUtilizationPercentage: 70
+
+# Monitoring configuration
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    retention: 30d
+  grafana:
+    enabled: true
+    adminPassword: "changeme"
+
+# Logging configuration
+logging:
+  enabled: true
+  provider: elasticsearch
+  elasticsearch:
+    enabled: true
+  kibana:
+    enabled: true
+
+# Network policies
+networkPolicy:
+  enabled: true
+  policyTypes:
+    - Ingress
+    - Egress
+
+# Pod Disruption Budgets
+podDisruptionBudgets:
+  enabled: true
+  minAvailable: 1
+
+# Secrets and ConfigMaps
+secrets:
+  jwtSecret: "your-jwt-secret-key-change-in-production"
+  stripeSecretKey: "your-stripe-secret-key"
+  agoraAppId: "your-agora-app-id"
+  agoraAppCertificate: "your-agora-certificate"
+
+configMaps:
+  environment: production
+  logLevel: info
+  apiTimeout: 30000
+  maxConnections: 100
+
+# NodeSelector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - api-gateway
+          topologyKey: kubernetes.io/hostname

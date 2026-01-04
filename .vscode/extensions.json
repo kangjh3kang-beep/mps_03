@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "Dart-Code.flutter",
+        "Dart-Code.dart-code",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "rvest.vs-code-prettier-eslint"
+    ]
+}

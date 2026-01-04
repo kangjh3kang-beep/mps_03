@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import {
     Globe, Users, Activity, AlertTriangle, ShieldCheck, Zap,
@@ -235,7 +237,7 @@ const GlobalDashboard = () => {
                                                 <td className="py-6 font-mono text-slate-300">{row.samples}</td>
                                                 <td className="py-6">
                                                     <span className={`px-3 py-1 rounded-lg text-[10px] font-black tracking-tighter ${row.status === 'Analyzed' ? 'bg-green-500/10 text-green-400' :
-                                                            row.status === 'Processing' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-amber-500/10 text-amber-400'
+                                                        row.status === 'Processing' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-amber-500/10 text-amber-400'
                                                         }`}>{row.status}</span>
                                                 </td>
                                                 <td className="py-6 pr-4 text-cyan-400 text-[10px] font-black font-mono tracking-widest">{row.hash}</td>

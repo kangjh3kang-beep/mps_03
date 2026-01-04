@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LayoutDashboard, Cpu, Users, Settings, LogOut, Sun, Moon, Accessibility } from 'lucide-react';
+import { LayoutDashboard, Cpu, Users, Settings, LogOut, Sun, Moon, Accessibility, Map, BarChart } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { useTheme } from '@/lib/ThemeContext';
@@ -30,6 +30,8 @@ export default function Sidebar() {
 
             <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
                 <NavItem href="/dashboard" icon={<LayoutDashboard size={20} />} label="대시보드" active />
+                <NavItem href="/ems" icon={<Map size={20} />} label="EMS 관제" />
+                <NavItem href="/analysis" icon={<BarChart size={20} />} label="전문가 분석" />
                 <NavItem href="/devices" icon={<Cpu size={20} />} label="기기 관리" />
                 <NavItem href="/community" icon={<Users size={20} />} label="커뮤니티" />
                 <NavItem href="/settings" icon={<Settings size={20} />} label="설정" />

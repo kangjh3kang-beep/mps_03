@@ -1,0 +1,305 @@
+name: Build, Test, and Deploy
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  REGISTRY: ghcr.io
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+jobs:
+  # Job 1: Build and push Docker images
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        service:
+          - auth-service
+          - measurement-service
+          - ai-service
+          - payment-service
+          - notification-service
+          - video-service
+          - translation-service
+          - data-service
+          - admin-service
+          - api-gateway
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/mps-${{ matrix.service }}
+        tags: |
+          type=ref,event=branch
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,prefix={{branch}}-
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ./backend/services/${{ matrix.service }}/Dockerfile
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  # Job 2: Run tests
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: mps_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      mongodb:
+        image: mongo:6
+        options: >-
+          --health-cmd mongosh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 27017:27017
+
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        npm ci
+        pip install -r requirements.txt
+
+    - name: Run unit tests (Node.js)
+      run: npm run test:unit
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/mps_test
+        MONGO_URI: mongodb://localhost:27017/mps_test
+        REDIS_URL: redis://localhost:6379
+
+    - name: Run unit tests (Python)
+      run: python -m pytest tests/unit --cov=./
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/mps_test
+        MONGO_URI: mongodb://localhost:27017/mps_test
+
+    - name: Run integration tests
+      run: npm run test:integration
+      env:
+        DATABASE_URL: postgresql://test:test@localhost:5432/mps_test
+        MONGO_URI: mongodb://localhost:27017/mps_test
+        REDIS_URL: redis://localhost:6379
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        flags: unittests
+        fail_ci_if_error: false
+
+  # Job 3: Code quality checks
+  quality:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run ESLint
+      run: npm run lint
+      continue-on-error: true
+
+    - name: Run TypeScript type check
+      run: npm run type-check
+      continue-on-error: true
+
+    - name: Security audit
+      run: npm audit --audit-level=moderate
+      continue-on-error: true
+
+  # Job 4: Deploy to staging (on develop branch)
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [build, test, quality]
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.27.0'
+
+    - name: Set kubeconfig
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
+        chmod 600 $HOME/.kube/config
+
+    - name: Apply Kubernetes manifests to staging
+      run: |
+        kubectl apply -f deploy/k8s/00-infrastructure.yaml --context=staging
+        kubectl apply -f deploy/k8s/01-services.yaml --context=staging
+        kubectl apply -f deploy/k8s/02-ingress.yaml --context=staging
+        kubectl apply -f deploy/k8s/03-autoscaling.yaml --context=staging
+      env:
+        KUBE_CONTEXT: staging
+
+    - name: Wait for rollout
+      run: |
+        kubectl rollout status deployment -n manpasik --timeout=5m --context=staging
+
+    - name: Run smoke tests
+      run: |
+        npm run test:smoke
+      env:
+        API_BASE_URL: https://staging-api.manpasik.com
+
+    - name: Notify deployment
+      uses: 8398a7/action-slack@v3
+      if: always()
+      with:
+        status: ${{ job.status }}
+        text: 'Staging deployment ${{ job.status }}'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+
+  # Job 5: Deploy to production (on main branch)
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [build, test, quality]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: https://api.manpasik.com
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.27.0'
+
+    - name: Set kubeconfig
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
+        chmod 600 $HOME/.kube/config
+
+    - name: Create backup
+      run: |
+        kubectl get all -n manpasik -o yaml > backup-$(date +%Y%m%d-%H%M%S).yaml
+
+    - name: Apply Kubernetes manifests to production
+      run: |
+        kubectl apply -f deploy/k8s/00-infrastructure.yaml --context=production
+        kubectl apply -f deploy/k8s/01-services.yaml --context=production
+        kubectl apply -f deploy/k8s/02-ingress.yaml --context=production
+        kubectl apply -f deploy/k8s/03-autoscaling.yaml --context=production
+      env:
+        KUBE_CONTEXT: production
+
+    - name: Wait for rollout
+      run: |
+        kubectl rollout status deployment -n manpasik --timeout=10m --context=production
+
+    - name: Run health checks
+      run: |
+        npm run test:health
+      env:
+        API_BASE_URL: https://api.manpasik.com
+
+    - name: Notify deployment
+      uses: 8398a7/action-slack@v3
+      if: always()
+      with:
+        status: ${{ job.status }}
+        text: 'Production deployment ${{ job.status }}'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+
+    - name: Create release
+      uses: actions/create-release@v1
+      if: success()
+      with:
+        tag_name: v${{ github.run_number }}
+        release_name: Release v${{ github.run_number }}
+        body: |
+          ## Deployment Information
+          - Environment: Production
+          - Timestamp: ${{ github.event.head_commit.timestamp }}
+          - Commit: ${{ github.event.head_commit.message }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

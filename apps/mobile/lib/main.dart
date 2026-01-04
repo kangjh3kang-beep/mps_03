@@ -1,19 +1,35 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'app/app.dart';
+import 'config/service_locator.dart';
+import 'config/mvp_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Supabase 초기화
-  await Supabase.initialize(
-    url: 'https://ekzytlhdggejhhhmfznw.supabase.co',
-    anonKey: 'sb_publishable_IzgXxLME7nu71IDB0ESc3A_F983TXqA',
-  );
-  
-  // Hive 초기화
-  await Hive.initFlutter();
-  
-  // TODO: 의존성 주입 초기화 (configureDependencies)
-  
+
+  // MVP 모드 로그
+  print('[Main] MVP Mode: ${MVPConfig.enableMVPMode}');
+  print('[Main] Enabled Features: ${MVPConfig.enabledFeatures}');
+
+  // 의존성 주입 설정
+  await setupDependencies();
+
+  // BLoC 옵저버 설정
+  Bloc.observer = AppBlocObserver();
+
   runApp(const ManpasikApp());
+}
+
+class AppBlocObserver extends BlocObserver {
+  @override
+  void onChange(BlocBase bloc, Change change) {
+    super.onChange(bloc, change);
+    debugPrint('${bloc.runtimeType} $change');
+  }
+
+  @override
+  void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
+    super.onError(bloc, error, stackTrace);
+    debugPrint('${bloc.runtimeType} $error');
+  }
 }

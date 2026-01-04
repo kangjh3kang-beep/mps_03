@@ -1,0 +1,394 @@
+version: '3.9'
+
+services:
+  # ============================================
+  # Mock API Server (개발/테스트용)
+  # ============================================
+  mock-api:
+    build:
+      context: ./backend/mock-server
+      dockerfile: Dockerfile
+    container_name: manpasik-mock-api
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+    networks:
+      - manpasik-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # Auth Service (Go + PostgreSQL)
+  # ============================================
+  auth-service:
+    build:
+      context: ./backend/services/auth-service
+      dockerfile: Dockerfile
+    container_name: manpasik-auth-service
+    ports:
+      - "8001:8001"
+    environment:
+      PORT: 8001
+      DATABASE_URL: postgresql://manpasik:manpasik123@postgres:5432/manpasik_auth
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
+      JWT_EXPIRY: 3600
+      REFRESH_TOKEN_EXPIRY: 604800
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - manpasik-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # Measurement Service (Node.js + Hive)
+  # ============================================
+  measurement-service:
+    build:
+      context: ./backend/services/measurement-service
+      dockerfile: Dockerfile
+    container_name: manpasik-measurement-service
+    ports:
+      - "8002:8002"
+    environment:
+      NODE_ENV: development
+      PORT: 8002
+      MONGODB_URI: mongodb://mongo:27017/manpasik_measurements
+    depends_on:
+      - mongo
+    networks:
+      - manpasik-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # AI Coaching Service (Python + FastAPI)
+  # ============================================
+  ai-service:
+    build:
+      context: ./backend/services/ai-service
+      dockerfile: Dockerfile
+    container_name: manpasik-ai-service
+    ports:
+      - "8003:8003"
+    environment:
+      PORT: 8003
+      PYTHONUNBUFFERED: 1
+    networks:
+      - manpasik-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # PostgreSQL Database
+  # ============================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: manpasik-postgres
+    environment:
+      POSTGRES_USER: manpasik
+      POSTGRES_PASSWORD: manpasik123
+      POSTGRES_DB: manpasik_auth
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./deploy/supabase/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - manpasik-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U manpasik -d manpasik_auth"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ============================================
+  # MongoDB
+  # ============================================
+  mongo:
+    image: mongo:7.0-alpine
+    container_name: manpasik-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: manpasik
+      MONGO_INITDB_ROOT_PASSWORD: manpasik123
+      MONGO_INITDB_DATABASE: manpasik_measurements
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - manpasik-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/manpasik_measurements -u manpasik -p manpasik123
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ============================================
+  # Redis Cache
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: manpasik-redis
+    command: redis-server --requirepass manpasik123
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - manpasik-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ============================================
+  # Payment Service (Node.js + PostgreSQL)
+  # ============================================
+  payment-service:
+    build:
+      context: ./backend/services/payment-service
+      dockerfile: Dockerfile
+    container_name: manpasik-payment-service
+    ports:
+      - "3004:3004"
+    environment:
+      NODE_ENV: production
+      PORT: 3004
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: manpasik
+      DB_PASSWORD: manpasik123
+      DB_NAME: mps_payment
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_demo}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - manpasik-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3004/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # Notification Service (Node.js + WebSocket)
+  # ============================================
+  notification-service:
+    build:
+      context: ./backend/services/notification-service
+      dockerfile: Dockerfile
+    container_name: manpasik-notification-service
+    ports:
+      - "3005:3005"
+    environment:
+      NODE_ENV: production
+      PORT: 3005
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: manpasik
+      DB_PASSWORD: manpasik123
+      DB_NAME: mps_notification
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
+      FIREBASE_CONFIG: ${FIREBASE_CONFIG:-{}}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - manpasik-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3005/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # Video Service (Node.js + Agora)
+  # ============================================
+  video-service:
+    build:
+      context: ./backend/services/video-service
+      dockerfile: Dockerfile
+    container_name: manpasik-video-service
+    ports:
+      - "3006:3006"
+    environment:
+      NODE_ENV: production
+      PORT: 3006
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: manpasik
+      DB_PASSWORD: manpasik123
+      DB_NAME: mps_video
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
+      AGORA_APP_ID: ${AGORA_APP_ID:-demo-app-id}
+      AGORA_APP_CERTIFICATE: ${AGORA_APP_CERTIFICATE:-demo-app-certificate}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - manpasik-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3006/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # Translation Service (Python + FastAPI)
+  # ============================================
+  translation-service:
+    build:
+      context: ./backend/services/translation-service
+      dockerfile: Dockerfile
+    container_name: manpasik-translation-service
+    ports:
+      - "3007:3007"
+    environment:
+      PORT: 3007
+      DATABASE_URL: postgresql://manpasik:manpasik123@postgres:5432/mps_translation
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - manpasik-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:3007/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # Data Service (Node.js + Hash Chain)
+  # ============================================
+  data-service:
+    build:
+      context: ./backend/services/data-service
+      dockerfile: Dockerfile
+    container_name: manpasik-data-service
+    ports:
+      - "3008:3008"
+    environment:
+      NODE_ENV: production
+      PORT: 3008
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: manpasik
+      DB_PASSWORD: manpasik123
+      DB_NAME: mps_data
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - manpasik-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3008/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # Admin Service (Go + PostgreSQL)
+  # ============================================
+  admin-service:
+    build:
+      context: ./backend/services/admin-service
+      dockerfile: Dockerfile
+    container_name: manpasik-admin-service
+    ports:
+      - "3009:3009"
+    environment:
+      PORT: 3009
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: manpasik
+      DB_PASSWORD: manpasik123
+      DB_NAME: mps_admin
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - manpasik-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3009/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # ============================================
+  # API Gateway (Nginx)
+  # ============================================
+  gateway:
+    build:
+      context: ./backend/gateway
+      dockerfile: Dockerfile
+    container_name: manpasik-gateway
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+      - "9000:9000"
+    depends_on:
+      - auth-service
+      - measurement-service
+      - ai-service
+      - payment-service
+      - notification-service
+      - video-service
+      - translation-service
+      - data-service
+      - admin-service
+    networks:
+      - manpasik-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  mongo_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  manpasik-network:
+    driver: bridge

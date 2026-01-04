@@ -1,0 +1,85 @@
+# Dependencies
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# Build outputs
+.next/
+build/
+dist/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+build_log*.txt
+
+# Cache
+.cache/
+.npm/
+.pnpm/
+.yarn/
+
+# Environment files (secrets)
+.env
+.env.local
+.env.*.local
+
+# Test coverage
+coverage/
+.nyc_output/
+htmlcov/
+.coverage
+
+# Docker
+*.tar
+docker-compose.override.yml
+
+# Kubernetes generated
+deploy/k8s/*.gen.yaml
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Large files
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Generated files
+package-lock.json
+pubspec.lock
+go.sum
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Git
+.git/
+
+# Documentation (large)
+COMPREHENSIVE_FUNCTIONAL_AUDIT_REPORT_KO.md
+DEPLOYMENT_GUIDE_KO.md
+MASTER_IMPLEMENTATION_PLAN_KO.md

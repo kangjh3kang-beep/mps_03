@@ -1,0 +1,53 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Mobile (Flutter)",
+            "request": "launch",
+            "type": "dart",
+            "program": "apps/mobile/lib/main.dart",
+            "cwd": "${workspaceFolder}/apps/mobile"
+        },
+        {
+            "name": "Admin (Next.js)",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "dev"
+            ],
+            "cwd": "${workspaceFolder}/apps/admin",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Backend (NestJS)",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "start:debug"
+            ],
+            "cwd": "${workspaceFolder}/apps/backend",
+            "console": "integratedTerminal"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Full Ecosystem (All)",
+            "configurations": [
+                "Backend (NestJS)",
+                "Admin (Next.js)",
+                "Mobile (Flutter)"
+            ]
+        },
+        {
+            "name": "Web Stack (Admin + Backend)",
+            "configurations": [
+                "Backend (NestJS)",
+                "Admin (Next.js)"
+            ]
+        }
+    ]
+}

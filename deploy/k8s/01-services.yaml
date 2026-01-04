@@ -1,0 +1,876 @@
+---
+# Auth Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: manpasik
+  labels:
+    app: auth-service
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+        version: v1
+    spec:
+      containers:
+      - name: auth-service
+        image: mps-auth-service:latest
+        ports:
+        - containerPort: 8001
+          name: http
+        env:
+        - name: PORT
+          value: "8001"
+        - name: DATABASE_URL
+          value: "postgresql://$(DB_USER):$(DB_PASSWORD)@postgres:5432/manpasik_auth"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: db-password
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: jwt-secret
+        - name: JWT_EXPIRY
+          value: "3600"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+# Auth Service Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: manpasik
+  labels:
+    app: auth-service
+spec:
+  selector:
+    app: auth-service
+  ports:
+  - port: 8001
+    targetPort: 8001
+    name: http
+  type: ClusterIP
+
+---
+# Measurement Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: measurement-service
+  namespace: manpasik
+  labels:
+    app: measurement-service
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: measurement-service
+  template:
+    metadata:
+      labels:
+        app: measurement-service
+        version: v1
+    spec:
+      containers:
+      - name: measurement-service
+        image: mps-measurement-service:latest
+        ports:
+        - containerPort: 8002
+          name: http
+        env:
+        - name: PORT
+          value: "8002"
+        - name: MONGO_URI
+          value: "mongodb://mongo:27017/mps_db"
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8002
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8002
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+# Measurement Service Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: measurement-service
+  namespace: manpasik
+  labels:
+    app: measurement-service
+spec:
+  selector:
+    app: measurement-service
+  ports:
+  - port: 8002
+    targetPort: 8002
+    name: http
+  type: ClusterIP
+
+---
+# AI Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-service
+  namespace: manpasik
+  labels:
+    app: ai-service
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-service
+  template:
+    metadata:
+      labels:
+        app: ai-service
+        version: v1
+    spec:
+      containers:
+      - name: ai-service
+        image: mps-ai-service:latest
+        ports:
+        - containerPort: 3003
+          name: http
+        env:
+        - name: PORT
+          value: "3003"
+        - name: MONGO_URI
+          value: "mongodb://mongo:27017/mps_db"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: jwt-secret
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 150m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+
+---
+# AI Service Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-service
+  namespace: manpasik
+  labels:
+    app: ai-service
+spec:
+  selector:
+    app: ai-service
+  ports:
+  - port: 3003
+    targetPort: 3003
+    name: http
+  type: ClusterIP
+
+---
+# Payment Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  namespace: manpasik
+  labels:
+    app: payment-service
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payment-service
+  template:
+    metadata:
+      labels:
+        app: payment-service
+        version: v1
+    spec:
+      containers:
+      - name: payment-service
+        image: mps-payment-service:latest
+        ports:
+        - containerPort: 3004
+          name: http
+        env:
+        - name: PORT
+          value: "3004"
+        - name: DB_HOST
+          value: "postgres"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: db-password
+        - name: DB_NAME
+          value: "mps_payment"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: jwt-secret
+        - name: STRIPE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: stripe-secret-key
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3004
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3004
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+# Payment Service Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-service
+  namespace: manpasik
+  labels:
+    app: payment-service
+spec:
+  selector:
+    app: payment-service
+  ports:
+  - port: 3004
+    targetPort: 3004
+    name: http
+  type: ClusterIP
+
+---
+# Notification Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: manpasik
+  labels:
+    app: notification-service
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+        version: v1
+    spec:
+      containers:
+      - name: notification-service
+        image: mps-notification-service:latest
+        ports:
+        - containerPort: 3005
+          name: http
+        env:
+        - name: PORT
+          value: "3005"
+        - name: DB_HOST
+          value: "postgres"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: db-password
+        - name: DB_NAME
+          value: "mps_notification"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: jwt-secret
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+# Notification Service Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: manpasik
+  labels:
+    app: notification-service
+spec:
+  selector:
+    app: notification-service
+  ports:
+  - port: 3005
+    targetPort: 3005
+    name: http
+  type: ClusterIP
+
+---
+# Video Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-service
+  namespace: manpasik
+  labels:
+    app: video-service
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: video-service
+  template:
+    metadata:
+      labels:
+        app: video-service
+        version: v1
+    spec:
+      containers:
+      - name: video-service
+        image: mps-video-service:latest
+        ports:
+        - containerPort: 3006
+          name: http
+        env:
+        - name: PORT
+          value: "3006"
+        - name: DB_HOST
+          value: "postgres"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: db-password
+        - name: DB_NAME
+          value: "mps_video"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: jwt-secret
+        - name: AGORA_APP_ID
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: agora-app-id
+        - name: AGORA_APP_CERTIFICATE
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: agora-certificate
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3006
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3006
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+# Video Service Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: video-service
+  namespace: manpasik
+  labels:
+    app: video-service
+spec:
+  selector:
+    app: video-service
+  ports:
+  - port: 3006
+    targetPort: 3006
+    name: http
+  type: ClusterIP
+
+---
+# Translation Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: translation-service
+  namespace: manpasik
+  labels:
+    app: translation-service
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: translation-service
+  template:
+    metadata:
+      labels:
+        app: translation-service
+        version: v1
+    spec:
+      containers:
+      - name: translation-service
+        image: mps-translation-service:latest
+        ports:
+        - containerPort: 3007
+          name: http
+        env:
+        - name: PORT
+          value: "3007"
+        - name: DATABASE_URL
+          value: "postgresql://$(DB_USER):$(DB_PASSWORD)@postgres:5432/mps_translation"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: db-password
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: jwt-secret
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3007
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3007
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 150m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+
+---
+# Translation Service Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: translation-service
+  namespace: manpasik
+  labels:
+    app: translation-service
+spec:
+  selector:
+    app: translation-service
+  ports:
+  - port: 3007
+    targetPort: 3007
+    name: http
+  type: ClusterIP
+
+---
+# Data Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-service
+  namespace: manpasik
+  labels:
+    app: data-service
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: data-service
+  template:
+    metadata:
+      labels:
+        app: data-service
+        version: v1
+    spec:
+      containers:
+      - name: data-service
+        image: mps-data-service:latest
+        ports:
+        - containerPort: 3008
+          name: http
+        env:
+        - name: PORT
+          value: "3008"
+        - name: DB_HOST
+          value: "postgres"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: db-password
+        - name: DB_NAME
+          value: "mps_data"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: jwt-secret
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3008
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3008
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+# Data Service Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-service
+  namespace: manpasik
+  labels:
+    app: data-service
+spec:
+  selector:
+    app: data-service
+  ports:
+  - port: 3008
+    targetPort: 3008
+    name: http
+  type: ClusterIP
+
+---
+# Admin Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin-service
+  namespace: manpasik
+  labels:
+    app: admin-service
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: admin-service
+  template:
+    metadata:
+      labels:
+        app: admin-service
+        version: v1
+    spec:
+      containers:
+      - name: admin-service
+        image: mps-admin-service:latest
+        ports:
+        - containerPort: 3009
+          name: http
+        env:
+        - name: PORT
+          value: "3009"
+        - name: DB_HOST
+          value: "postgres"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: db-password
+        - name: DB_NAME
+          value: "mps_admin"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: mps-secrets
+              key: jwt-secret
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3009
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3009
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+# Admin Service Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin-service
+  namespace: manpasik
+  labels:
+    app: admin-service
+spec:
+  selector:
+    app: admin-service
+  ports:
+  - port: 3009
+    targetPort: 3009
+    name: http
+  type: ClusterIP
+
+---
+# API Gateway Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: manpasik
+  labels:
+    app: api-gateway
+    version: v1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+        version: v1
+    spec:
+      containers:
+      - name: api-gateway
+        image: mps-api-gateway:latest
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 8081
+          name: health
+        - containerPort: 9000
+          name: admin
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8081
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+# API Gateway Service (ClusterIP)
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: manpasik
+  labels:
+    app: api-gateway
+spec:
+  selector:
+    app: api-gateway
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http
+  - port: 8081
+    targetPort: 8081
+    name: health
+  - port: 9000
+    targetPort: 9000
+    name: admin
+  type: ClusterIP
+
+---
+# API Gateway Service (LoadBalancer for external access)
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway-lb
+  namespace: manpasik
+  labels:
+    app: api-gateway
+spec:
+  selector:
+    app: api-gateway
+  ports:
+  - port: 80
+    targetPort: 8080
+    name: http
+  - port: 9000
+    targetPort: 9000
+    name: admin
+  type: LoadBalancer

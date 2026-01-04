@@ -1,0 +1,231 @@
+# Prometheus Alerting Rules for Manpasik Ecosystem
+# 알림 규칙 설정
+
+groups:
+  # ==========================================
+  # Service Health Alerts
+  # ==========================================
+  - name: service-health
+    interval: 30s
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "서비스 다운: {{ $labels.job }}"
+          description: "{{ $labels.instance }} 서비스가 1분 이상 응답하지 않습니다."
+
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m])) by (service)
+          / sum(rate(http_requests_total[5m])) by (service)
+          > 0.05
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "높은 에러율: {{ $labels.service }}"
+          description: "{{ $labels.service }}의 에러율이 5%를 초과했습니다."
+
+      - alert: CriticalErrorRate
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m])) by (service)
+          / sum(rate(http_requests_total[5m])) by (service)
+          > 0.1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "심각한 에러율: {{ $labels.service }}"
+          description: "{{ $labels.service }}의 에러율이 10%를 초과했습니다. 즉시 확인이 필요합니다."
+
+  # ==========================================
+  # Latency Alerts
+  # ==========================================
+  - name: latency
+    interval: 30s
+    rules:
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service)
+          ) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "높은 응답 시간: {{ $labels.service }}"
+          description: "{{ $labels.service }}의 95퍼센타일 응답 시간이 1초를 초과했습니다."
+
+      - alert: CriticalLatency
+        expr: |
+          histogram_quantile(0.99, 
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service)
+          ) > 5
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "심각한 응답 지연: {{ $labels.service }}"
+          description: "{{ $labels.service }}의 99퍼센타일 응답 시간이 5초를 초과했습니다."
+
+  # ==========================================
+  # Resource Alerts
+  # ==========================================
+  - name: resources
+    interval: 30s
+    rules:
+      - alert: HighCPUUsage
+        expr: |
+          (sum(rate(container_cpu_usage_seconds_total[5m])) by (pod)
+          / sum(container_spec_cpu_quota/container_spec_cpu_period) by (pod))
+          > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "높은 CPU 사용량: {{ $labels.pod }}"
+          description: "{{ $labels.pod }}의 CPU 사용량이 80%를 초과했습니다."
+
+      - alert: HighMemoryUsage
+        expr: |
+          container_memory_usage_bytes / container_spec_memory_limit_bytes > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "높은 메모리 사용량: {{ $labels.pod }}"
+          description: "{{ $labels.pod }}의 메모리 사용량이 85%를 초과했습니다."
+
+      - alert: PodRestartingTooMuch
+        expr: |
+          increase(kube_pod_container_status_restarts_total[1h]) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pod 재시작 빈번: {{ $labels.pod }}"
+          description: "{{ $labels.pod }}가 지난 1시간 동안 5회 이상 재시작되었습니다."
+
+  # ==========================================
+  # Database Alerts
+  # ==========================================
+  - name: database
+    interval: 30s
+    rules:
+      - alert: PostgresConnectionsHigh
+        expr: pg_stat_activity_count > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL 연결 수 증가"
+          description: "PostgreSQL 연결 수가 80을 초과했습니다."
+
+      - alert: PostgresSlowQueries
+        expr: |
+          rate(pg_stat_statements_seconds_total[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL 느린 쿼리 감지"
+          description: "느린 쿼리가 감지되었습니다. 쿼리 최적화를 검토하세요."
+
+      - alert: RedisMemoryHigh
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis 메모리 사용량 증가"
+          description: "Redis 메모리 사용량이 80%를 초과했습니다."
+
+      - alert: MongoConnectionPoolExhausted
+        expr: |
+          mongodb_connections{state="available"} < 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "MongoDB 연결 풀 부족"
+          description: "MongoDB 사용 가능한 연결 수가 10개 미만입니다."
+
+  # ==========================================
+  # Business Logic Alerts
+  # ==========================================
+  - name: business
+    interval: 1m
+    rules:
+      - alert: MeasurementFailureRate
+        expr: |
+          sum(rate(measurement_errors_total[5m])) 
+          / sum(rate(measurement_total[5m]))
+          > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "측정 실패율 증가"
+          description: "측정 실패율이 10%를 초과했습니다. 장비 또는 서비스 상태를 확인하세요."
+
+      - alert: PaymentFailureRate
+        expr: |
+          sum(rate(payment_failures_total[5m])) 
+          / sum(rate(payment_attempts_total[5m]))
+          > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "결제 실패율 증가"
+          description: "결제 실패율이 5%를 초과했습니다. 즉시 확인이 필요합니다."
+
+      - alert: VideoCallDropRate
+        expr: |
+          sum(rate(video_call_drops_total[5m])) 
+          / sum(rate(video_call_starts_total[5m]))
+          > 0.15
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "화상 통화 끊김 증가"
+          description: "화상 통화 끊김 비율이 15%를 초과했습니다."
+
+      - alert: LoginFailureSpike
+        expr: |
+          sum(increase(auth_login_failures_total[5m])) > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "로그인 실패 급증"
+          description: "5분 동안 100건 이상의 로그인 실패가 발생했습니다. 보안 점검이 필요할 수 있습니다."
+
+  # ==========================================
+  # SSL/TLS Certificate Alerts
+  # ==========================================
+  - name: ssl
+    interval: 1h
+    rules:
+      - alert: SSLCertificateExpiringSoon
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 30
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "SSL 인증서 만료 임박"
+          description: "{{ $labels.instance }}의 SSL 인증서가 30일 이내에 만료됩니다."
+
+      - alert: SSLCertificateExpiringCritical
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 7
+        for: 1h
+        labels:
+          severity: critical
+        annotations:
+          summary: "SSL 인증서 만료 임박 (긴급)"
+          description: "{{ $labels.instance }}의 SSL 인증서가 7일 이내에 만료됩니다. 즉시 갱신하세요."
+

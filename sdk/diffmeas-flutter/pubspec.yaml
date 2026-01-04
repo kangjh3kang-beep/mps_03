@@ -1,0 +1,44 @@
+name: diffmeas_sdk
+description: DiffMeas SDK for Flutter - 만파식적 측정 장비 연동 SDK
+version: 1.0.0
+homepage: https://github.com/manpasik/diffmeas-sdk-flutter
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_blue_plus: ^1.31.0
+  nfc_manager: ^3.3.0
+  permission_handler: ^11.0.0
+  rxdart: ^0.27.7
+  crypto: ^3.0.3
+  uuid: ^4.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  mockito: ^5.4.4
+  build_runner: ^2.4.8
+
+flutter:
+  # This package does not contain any assets
+
+# Package features:
+# - BLE device discovery and connection
+# - NFC tag reading and writing
+# - Measurement data handling for:
+#   - Blood glucose
+#   - Blood pressure
+#   - Heart rate
+#   - Oxygen saturation
+#   - Temperature
+#   - ECG
+#   - Weight/Body composition
+# - Continuous measurement mode
+# - Device calibration
+# - Firmware OTA updates
+

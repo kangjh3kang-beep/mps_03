@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:injectable/injectable.dart';
+import '../config/mvp_config.dart';
 import 'hardware_manager.dart';
 
 class SimulatedData {

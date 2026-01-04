@@ -1,179 +1,89 @@
 'use client';
 
-import React, { useState } from 'react';
-import {
-    Globe, Users, Activity, AlertTriangle, ShieldCheck, Zap,
-    LayoutDashboard, Map, Database, Settings, Menu, X
-} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { adminSocket } from '@/lib/socket';
 
-const GlobalDashboard = () => {
-    const [activeMenu, setActiveMenu] = useState('dashboard');
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+// Leaflet map must be loaded dynamically with ssr: false
+const MapWithNoSSR = dynamic(() => import('../../components/ems/EmsMap'), {
+    ssr: false,
+    loading: () => <div className="w-full h-full flex items-center justify-center text-primary">Loading Map...</div>
+});
 
-    const stats = [
-        { label: '활성 국가', value: '124', icon: <Globe className="text-cyan-400" /> },
-        { label: '전체 사용자', value: '1,240,582', icon: <Users className="text-purple-400" /> },
-        { label: '실시간 측정 건수', value: '45,201', icon: <Activity className="text-green-400" /> },
-        { label: '시스템 경고', value: '3', icon: <AlertTriangle className="text-amber-400" /> },
-    ];
+export default function EmsPage() {
+    const [alerts, setAlerts] = useState<any[]>([]);
 
-    const menuItems = [
-        { id: 'dashboard', label: '글로벌 대시보드', icon: <LayoutDashboard size={20} /> },
-        { id: 'regions', label: '지역/그룹 관리', icon: <Map size={20} /> },
-        { id: 'ai-monitor', label: 'AI & 시스템 모니터링', icon: <Activity size={20} /> },
-        { id: 'research', label: '연구 데이터 허브', icon: <Database size={20} /> },
-        { id: 'settings', label: '시스템 설정', icon: <Settings size={20} /> },
-    ];
+    useEffect(() => {
+        adminSocket.connect();
+
+        adminSocket.onLiveData((data) => {
+            const newAlert = {
+                time: new Date(data.timestamp).toLocaleTimeString(),
+                message: `실시간 데이터 수신: ${data.value.toFixed(2)}`,
+                level: 'info'
+            };
+            setAlerts(prev => [newAlert, ...prev].slice(0, 5));
+        });
+
+        return () => {
+            adminSocket.disconnect();
+        };
+    }, []);
 
     return (
-        <div className="flex min-h-screen bg-slate-950 text-white font-sans">
-            {/* Sidebar Navigation */}
-            <aside className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-slate-900/50 border-r border-slate-800 transition-all duration-300 flex flex-col`}>
-                <div className="p-6 flex items-center justify-between">
-                    {isSidebarOpen && <span className="font-bold text-xl text-cyan-400">MPS EMS</span>}
-                    <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 hover:bg-slate-800 rounded-lg">
-                        {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
-                    </button>
+        <div className="p-6 h-full flex flex-col gap-6">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-3xl font-bold text-primary neon-text-cyan">EMS 관제 시스템</h1>
+                    <p className="text-muted-foreground">실시간 환경 데이터 및 리더기 상태 모니터링</p>
                 </div>
+                <div className="flex gap-4">
+                    <StatusCard label="정상 가동" value="1,240" color="text-green-400" />
+                    <StatusCard label="주의 필요" value="12" color="text-yellow-400" />
+                    <StatusCard label="연결 끊김" value="5" color="text-red-400" />
+                </div>
+            </div>
 
-                <nav className="flex-1 px-4 space-y-2">
-                    {menuItems.map((item) => (
-                        <button
-                            key={item.id}
-                            onClick={() => setActiveMenu(item.id)}
-                            className={`w-full flex items-center gap-4 p-3 rounded-xl transition-colors ${activeMenu === item.id ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'text-slate-400 hover:bg-slate-800'
-                                }`}
-                        >
-                            {item.icon}
-                            {isSidebarOpen && <span className="text-sm font-medium">{item.label}</span>}
-                        </button>
-                    ))}
-                </nav>
-            </aside>
+            <div className="flex-1 glass-card overflow-hidden relative rounded-xl border border-white/10">
+                <MapWithNoSSR />
 
-            {/* Main Content */}
-            <main className="flex-1 overflow-y-auto p-8">
-                <header className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                        {menuItems.find(m => m.id === activeMenu)?.label}
-                    </h1>
-                    <div className="flex gap-4">
-                        <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full text-green-400 text-xs">
-                            <ShieldCheck size={14} /> 보안 가동 중
-                        </div>
-                        <div className="flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-cyan-400 text-xs">
-                            <Zap size={14} /> AI 자가치유 활성
-                        </div>
+                {/* Overlay Panel */}
+                <div className="absolute top-4 right-4 w-80 glass-panel p-4 flex flex-col gap-4 z-[1000]">
+                    <h3 className="text-lg font-bold text-white border-b border-white/10 pb-2">실시간 알림</h3>
+                    <div className="flex flex-col gap-2">
+                        {alerts.map((alert, i) => (
+                            <AlertItem key={i} time={alert.time} message={alert.message} level={alert.level} />
+                        ))}
+                        <AlertItem time="10:23:45" message="서울 강남구: 미세먼지 수치 급증" level="warning" />
+                        <AlertItem time="10:15:12" message="부산 해운대구: 수질 오염 감지" level="danger" />
+                        <AlertItem time="09:58:30" message="시스템: 정기 데이터 백업 완료" level="info" />
                     </div>
-                </header>
-
-                {activeMenu === 'dashboard' && (
-                    <>
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-                            {stats.map((stat, i) => (
-                                <div key={i} className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl backdrop-blur-xl hover:border-cyan-500/50 transition-colors">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <span className="text-slate-400 text-sm">{stat.label}</span>
-                                        {stat.icon}
-                                    </div>
-                                    <div className="text-2xl font-bold">{stat.value}</div>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <div className="lg:col-span-2 bg-slate-900/50 border border-slate-800 p-8 rounded-3xl">
-                                <h2 className="text-xl font-semibold mb-6">글로벌 활성도 및 데이터 트렌드</h2>
-                                <div className="h-80 bg-slate-800/30 rounded-xl flex items-center justify-center relative overflow-hidden">
-                                    <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/world-map.png')] bg-center bg-no-repeat"></div>
-                                    <div className="z-10 text-slate-500 text-sm">실시간 데이터 패킷 전송 중...</div>
-                                </div>
-                            </div>
-
-                            <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-3xl">
-                                <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                                    <Activity className="text-green-400 size-5" /> AI 자가치유 로그
-                                </h2>
-                                <div className="space-y-4">
-                                    {[
-                                        { time: '13:45', action: 'DB 커넥션 풀 재시작', status: 'Resolved', color: 'text-green-400' },
-                                        { time: '13:12', action: 'API 레이턴시 최적화', status: 'Optimized', color: 'text-blue-400' },
-                                        { time: '12:05', action: '비정상 접근 차단', status: 'Blocked', color: 'text-red-400' },
-                                    ].map((log, i) => (
-                                        <div key={i} className="border-l-2 border-slate-700 pl-4 py-2">
-                                            <div className="flex justify-between text-xs mb-1">
-                                                <span className="text-slate-500">{log.time}</span>
-                                                <span className={log.color}>{log.status}</span>
-                                            </div>
-                                            <div className="text-sm font-medium">{log.action}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </>
-                )}
-
-                {activeMenu === 'research' && (
-                    <div className="space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl">
-                                <div className="text-slate-400 text-sm mb-2">총 연구 데이터셋</div>
-                                <div className="text-3xl font-bold">1,420</div>
-                            </div>
-                            <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl">
-                                <div className="text-slate-400 text-sm mb-2">참여 연구 기관</div>
-                                <div className="text-3xl font-bold">85</div>
-                            </div>
-                            <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl">
-                                <div className="text-slate-400 text-sm mb-2">데이터 무결성 점수</div>
-                                <div className="text-3xl font-bold text-green-400">99.9%</div>
-                            </div>
-                        </div>
-
-                        <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-3xl">
-                            <h2 className="text-xl font-semibold mb-6">최근 업로드된 외부 임상 데이터</h2>
-                            <table className="w-full text-left">
-                                <thead>
-                                    <tr className="text-slate-500 border-b border-slate-800">
-                                        <th className="pb-4">기관명</th>
-                                        <th className="pb-4">연구 주제</th>
-                                        <th className="pb-4">샘플 수</th>
-                                        <th className="pb-4">상태</th>
-                                        <th className="pb-4">해시 검증</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="text-sm">
-                                    {[
-                                        { org: 'Stanford Med', topic: 'Type 2 Diabetes Pattern', samples: '5,000', status: 'Analyzed', hash: 'Verified' },
-                                        { org: 'Seoul Nat Univ', topic: 'EHD Gas Biomarkers', samples: '1,200', status: 'Processing', hash: 'Verified' },
-                                        { org: 'Mayo Clinic', topic: 'Non-invasive Glucose', samples: '10,000', status: 'Queued', hash: 'Pending' },
-                                    ].map((row, i) => (
-                                        <tr key={i} className="border-b border-slate-800/50 hover:bg-slate-800/20">
-                                            <td className="py-4 font-medium">{row.org}</td>
-                                            <td className="py-4 text-slate-400">{row.topic}</td>
-                                            <td className="py-4">{row.samples}</td>
-                                            <td className="py-4">
-                                                <span className={`px-2 py-1 rounded-full text-[10px] ${row.status === 'Analyzed' ? 'bg-green-500/10 text-green-400' : 'bg-amber-500/10 text-amber-400'
-                                                    }`}>{row.status}</span>
-                                            </td>
-                                            <td className="py-4 text-cyan-400 text-xs font-mono">{row.hash}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                )}
-
-                {activeMenu !== 'dashboard' && activeMenu !== 'research' && (
-                    <div className="h-96 bg-slate-900/50 border border-slate-800 rounded-3xl flex items-center justify-center text-slate-500">
-                        {menuItems.find(m => m.id === activeMenu)?.label} 상세 페이지 준비 중...
-                    </div>
-                )}
-            </main>
+                </div>
+            </div>
         </div>
     );
-};
+}
 
-export default GlobalDashboard;
+function StatusCard({ label, value, color }: { label: string, value: string, color: string }) {
+    return (
+        <div className="glass-panel px-6 py-3 flex flex-col items-center min-w-[120px]">
+            <span className="text-sm text-muted-foreground">{label}</span>
+            <span className={`text-2xl font-bold ${color}`}>{value}</span>
+        </div>
+    );
+}
+
+function AlertItem({ time, message, level }: { time: string, message: string, level: 'info' | 'warning' | 'danger' }) {
+    const colors = {
+        info: 'border-l-blue-500 bg-blue-500/10',
+        warning: 'border-l-yellow-500 bg-yellow-500/10',
+        danger: 'border-l-red-500 bg-red-500/10'
+    };
+
+    return (
+        <div className={`p-3 border-l-2 text-sm ${colors[level]} rounded-r`}>
+            <div className="text-xs text-muted-foreground mb-1">{time}</div>
+            <div className="text-white">{message}</div>
+        </div>
+    );
+}

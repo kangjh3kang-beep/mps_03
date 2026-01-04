@@ -1,0 +1,32 @@
+apiVersion: v2
+name: manpasik
+description: Helm chart for Manpasik Health Ecosystem
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+keywords:
+  - health
+  - ecosystem
+  - kubernetes
+  - microservices
+
+home: https://manpasik.com
+sources:
+  - https://github.com/manpasik/ecosystem
+  - https://github.com/manpasik/mobile
+
+maintainers:
+  - name: Manpasik Team
+    email: team@manpasik.com
+    url: https://manpasik.com
+
+dependencies: []
+
+# Chart configuration
+kubeVersion: ">=1.24.0"
+
+# Custom metadata
+annotations:
+  category: Microservices
+  licenses: Apache-2.0

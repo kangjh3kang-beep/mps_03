@@ -1,7 +1,6 @@
 'use client';
 
-import Link from 'react-router-dom'; // Note: Next.js uses next/link, but I'll use standard Link for now or fix it to next/link
-import LinkNext from 'next/link';
+import Link from 'next/link';
 import {
     LayoutDashboard, Activity, FileText, Palette,
     Settings, LogOut, Shield, Zap, Globe, Database
@@ -58,19 +57,19 @@ export default function Sidebar() {
                         </h3>
                         <div className="space-y-1">
                             {group.items.map((item) => (
-                                <LinkNext
+                                <Link
                                     key={item.href}
                                     href={item.href}
                                     className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${pathname === item.href
-                                            ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-[inset_0_0_10px_rgba(6,182,212,0.1)]'
-                                            : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                                        ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-[inset_0_0_10px_rgba(6,182,212,0.1)]'
+                                        : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
                                         }`}
                                 >
                                     <span className={`${pathname === item.href ? 'text-cyan-400' : 'text-slate-500 group-hover:text-cyan-400'} transition-colors`}>
                                         {item.icon}
                                     </span>
                                     <span className="text-sm font-bold">{item.label}</span>
-                                </LinkNext>
+                                </Link>
                             ))}
                         </div>
                     </div>
