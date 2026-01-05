@@ -657,127 +657,136 @@ class AppRouter {
           GoRoute(
             path: '/community',
             name: 'community',
-            builder: (context, state) => const Placeholder(),
+            builder: (context, state) => const CommunityMainPage(),
             routes: [
               GoRoute(
                 path: 'feed',
                 name: 'communityFeed',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const CommunityMainPage(),
               ),
               GoRoute(
                 path: 'forum',
                 name: 'forum',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const ForumsPage(),
               ),
               GoRoute(
                 path: 'thread/:id',
                 name: 'forumThread',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) {
+                  final id = state.pathParameters['id'];
+                  return PostDetailPage(postId: id);
+                },
               ),
               GoRoute(
                 path: 'create-thread',
                 name: 'createThread',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const CreatePostPage(),
               ),
               GoRoute(
                 path: 'qa',
                 name: 'qa',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const ExpertQAPage(),
               ),
               GoRoute(
                 path: 'question/:id',
                 name: 'question',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) {
+                  final id = state.pathParameters['id'];
+                  return PostDetailPage(postId: id);
+                },
               ),
               GoRoute(
                 path: 'ask-question',
                 name: 'askQuestion',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const CreatePostPage(),
               ),
               GoRoute(
                 path: 'challenges',
                 name: 'challenges',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const ChallengesPage(),
               ),
               GoRoute(
                 path: 'challenge/:id',
                 name: 'challengeDetail',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const ChallengesPage(),
               ),
               GoRoute(
                 path: 'leaderboard',
                 name: 'leaderboard',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const LeaderboardPage(),
               ),
               GoRoute(
                 path: 'groups',
                 name: 'groups',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const SupportGroupsPage(),
               ),
               GoRoute(
                 path: 'group/:id',
                 name: 'groupDetail',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const SupportGroupsPage(),
               ),
               GoRoute(
                 path: 'members',
                 name: 'communityMembers',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const FollowersPage(),
               ),
               GoRoute(
                 path: 'profile/:userId',
                 name: 'userProfile',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) {
+                  final userId = state.pathParameters['userId'];
+                  return UserProfilePage(userId: userId);
+                },
               ),
               GoRoute(
                 path: 'events',
                 name: 'events',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const CommunityEventsPage(),
               ),
               GoRoute(
                 path: 'event/:id',
                 name: 'eventDetail',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const CommunityEventsPage(),
               ),
               GoRoute(
                 path: 'resources',
                 name: 'resources',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const ResourcesPage(),
               ),
               GoRoute(
                 path: 'moderation',
                 name: 'moderation',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const HelpCenterPage(),
               ),
               GoRoute(
                 path: 'reports',
                 name: 'communityReports',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const UserActivityPage(),
               ),
               GoRoute(
                 path: 'badges',
                 name: 'badges',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const AchievementsPage(),
               ),
               GoRoute(
                 path: 'notifications',
                 name: 'communityNotifications',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const CommunityNotificationsPage(),
               ),
               GoRoute(
                 path: 'trending',
                 name: 'trendingCommunity',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const SuccessStoriesPage(),
               ),
               GoRoute(
                 path: 'search',
                 name: 'communitySearch',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const CommunityMainPage(),
               ),
               GoRoute(
                 path: 'guidelines',
                 name: 'communityGuidelines',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const HelpCenterPage(),
               ),
             ],
           ),
@@ -808,37 +817,37 @@ class AppRouter {
               GoRoute(
                 path: 'permissions',
                 name: 'familyPermissions',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const PermissionsPage(),
               ),
               GoRoute(
                 path: 'shared-data',
                 name: 'sharedData',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const SharedDashboardPage(),
               ),
               GoRoute(
                 path: 'group-analytics',
                 name: 'groupAnalytics',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const FamilyReportsPage(),
               ),
               GoRoute(
                 path: 'notifications',
                 name: 'familyNotifications',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const FamilyAlertsPage(),
               ),
               GoRoute(
                 path: 'settings',
                 name: 'familySettings',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const SharingSettingsPage(),
               ),
               GoRoute(
                 path: 'leave',
                 name: 'leaveFamily',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const FamilyMainPage(),
               ),
               GoRoute(
                 path: 'history',
                 name: 'familyHistory',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const FamilyActivityLogPage(),
               ),
             ],
           ),
@@ -879,77 +888,77 @@ class AppRouter {
               GoRoute(
                 path: 'devices',
                 name: 'deviceSettings',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const DeviceManagementPage(),
               ),
               GoRoute(
                 path: 'reader',
                 name: 'readerSettings',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const DeviceManagementPage(),
               ),
               GoRoute(
                 path: 'appearance',
                 name: 'appearanceSettings',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const DisplaySettingsPage(),
               ),
               GoRoute(
                 path: 'language',
                 name: 'languageSettings',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const LanguageSettingsPage(),
               ),
               GoRoute(
                 path: 'data',
                 name: 'dataSettings',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const DataManagementPage(),
               ),
               GoRoute(
                 path: 'export',
                 name: 'exportSettings',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const BackupSettingsPage(),
               ),
               GoRoute(
                 path: 'import',
                 name: 'importSettings',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const BackupSettingsPage(),
               ),
               GoRoute(
                 path: 'subscription',
                 name: 'subscriptionSettings',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const SubscriptionPage(),
               ),
               GoRoute(
                 path: 'billing',
                 name: 'billingSettings',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const PaymentPage(),
               ),
               GoRoute(
                 path: 'integrations',
                 name: 'integrations',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const DeviceManagementPage(),
               ),
               GoRoute(
                 path: 'about',
                 name: 'aboutSettings',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const AboutPage(),
               ),
               GoRoute(
                 path: 'help',
                 name: 'help',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const HelpSettingsPage(),
               ),
               GoRoute(
                 path: 'feedback',
                 name: 'feedbackSettings',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const FeedbackSettingsPage(),
               ),
               GoRoute(
                 path: 'delete-account',
                 name: 'deleteAccount',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const PrivacySettingsPage(),
               ),
               GoRoute(
                 path: 'logs',
                 name: 'activityLogs',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const DataManagementPage(),
               ),
             ],
           ),
