@@ -21,59 +21,81 @@ export default function AboutPage() {
           </p>
         </motion.div>
 
-        {/* Story Section 1 */}
-        <div className="grid md:grid-cols-2 gap-16 items-center mb-32">
+        {/* Timeline Section */}
+        <div className="relative max-w-4xl mx-auto">
+          {/* Vertical Line */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-[2px] bg-ink-200" />
+
+          {/* Timeline Item 1 */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="relative h-[400px] bg-ink-100 rounded-2xl overflow-hidden"
+            className="relative grid grid-cols-1 md:grid-cols-2 gap-8 mb-32"
           >
-            {/* Placeholder for Manpasikjeok Image */}
-            <div className="absolute inset-0 flex items-center justify-center bg-ink-900/5">
-                <span className="font-brush text-6xl text-ink-200">만파식적</span>
+            <div className="md:text-right md:pr-12">
+              <h3 className="text-3xl font-brush text-ink-900 mb-4">신라 시대 (682년)</h3>
+              <p className="text-ink-600 font-serif leading-relaxed">
+                동해의 용이 대나무를 보내와 만파식적을 만들었습니다.<br/>
+                피리를 불면 나라의 모든 근심이 사라졌습니다.
+              </p>
+            </div>
+            <div className="absolute left-1/2 -translate-x-1/2 top-0 w-4 h-4 bg-ink-900 rounded-full border-4 border-paper z-10" />
+            <div className="md:pl-12">
+               <div className="h-48 bg-ink-100 rounded-2xl rotate-2 hover:rotate-0 transition-transform duration-500 overflow-hidden relative group">
+                  <div className="absolute inset-0 bg-ink-900/10 group-hover:bg-transparent transition-colors" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="font-brush text-5xl text-ink-300">傳說</span>
+                  </div>
+               </div>
             </div>
           </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl font-brush text-ink-900 mb-6">파도를 잠재우는 피리</h2>
-            <p className="text-lg text-ink-600 font-serif leading-loose mb-6">
-              신라 신문왕 때, 동해의 용이 대나무를 보내왔습니다. 이 대나무로 피리를 만들어 부니, 적병이 물러가고 병이 나으며, 가뭄에는 비가 오고 장마는 개며, 바람이 잦아들고 물결이 평온해졌습니다.
-            </p>
-            <p className="text-lg text-ink-600 font-serif leading-loose">
-              이것이 바로 <strong>만파식적(萬波息笛)</strong>입니다. 세상의 모든 근심과 걱정을 해결해주는 신비한 보물입니다.
-            </p>
-          </motion.div>
-        </div>
 
-        {/* Story Section 2 */}
-        <div className="grid md:grid-cols-2 gap-16 items-center mb-32">
+          {/* Timeline Item 2 */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="order-2 md:order-1"
+            className="relative grid grid-cols-1 md:grid-cols-2 gap-8 mb-32"
           >
-            <h2 className="text-4xl font-brush text-ink-900 mb-6">널리 인간을 이롭게 하라</h2>
-            <p className="text-lg text-ink-600 font-serif leading-loose mb-6">
-              <strong>홍익인간(弘益人間)</strong>은 대한민국의 건국 이념이자 교육 이념입니다. 우리는 이 정신을 디지털 헬스케어에 접목했습니다.
-            </p>
-            <p className="text-lg text-ink-600 font-serif leading-loose">
-              특정 계층만이 아닌, 전 세계 모든 인류가 평등하게 최상의 의료 서비스를 누릴 수 있도록. 만파식 생태계는 기술을 통해 홍익인간을 실현합니다.
-            </p>
+            <div className="order-2 md:order-1 md:text-right md:pr-12">
+               <div className="h-48 bg-ink-900 rounded-2xl -rotate-2 hover:rotate-0 transition-transform duration-500 overflow-hidden relative group">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="font-brush text-5xl text-paper/30">理念</span>
+                  </div>
+               </div>
+            </div>
+            <div className="absolute left-1/2 -translate-x-1/2 top-0 w-4 h-4 bg-ink-900 rounded-full border-4 border-paper z-10" />
+            <div className="order-1 md:order-2 md:pl-12">
+              <h3 className="text-3xl font-brush text-ink-900 mb-4">홍익인간 정신</h3>
+              <p className="text-ink-600 font-serif leading-relaxed">
+                널리 인간을 이롭게 하라는 건국 이념.<br/>
+                우리는 이 정신을 기술로 계승합니다.
+              </p>
+            </div>
           </motion.div>
+
+          {/* Timeline Item 3 */}
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="order-1 md:order-2 relative h-[400px] bg-ink-100 rounded-2xl overflow-hidden"
+            className="relative grid grid-cols-1 md:grid-cols-2 gap-8"
           >
-             {/* Placeholder for Hongik Ingan Image */}
-             <div className="absolute inset-0 flex items-center justify-center bg-ink-900/5">
-                <span className="font-brush text-6xl text-ink-200">홍익인간</span>
+            <div className="md:text-right md:pr-12">
+              <h3 className="text-3xl font-brush text-ink-900 mb-4">2026년, 만파식 생태계</h3>
+              <p className="text-ink-600 font-serif leading-relaxed">
+                블록체인과 AI로 재탄생한 디지털 만파식적.<br/>
+                당신의 데이터가 당신을 치유합니다.
+              </p>
+            </div>
+            <div className="absolute left-1/2 -translate-x-1/2 top-0 w-4 h-4 bg-accent rounded-full border-4 border-paper z-10 animate-pulse" />
+            <div className="md:pl-12">
+               <div className="h-48 bg-gradient-to-br from-ink-800 to-black rounded-2xl rotate-1 hover:rotate-0 transition-transform duration-500 overflow-hidden relative shadow-xl">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="font-brush text-5xl text-accent/50">未來</span>
+                  </div>
+               </div>
             </div>
           </motion.div>
         </div>

@@ -60,27 +60,51 @@ export default function FeaturesPage() {
           </p>
         </motion.div>
 
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Features Bento Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px]">
           {features.map((feature, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="bg-white/60 backdrop-blur-sm p-8 rounded-3xl border border-ink-100 hover:border-ink-300 hover:shadow-xl transition-all duration-300 group"
+              className={`relative p-8 rounded-3xl border border-ink-100 overflow-hidden group hover:border-ink-300 transition-all duration-500 ${
+                index === 0 || index === 3 ? "md:col-span-2 bg-ink-900 text-paper" : "bg-white/60 backdrop-blur-sm"
+              }`}
             >
-              <div className="w-14 h-14 bg-ink-900 text-paper rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <feature.icon size={28} />
+              {/* Background Decoration */}
+              <div className={`absolute -right-10 -bottom-10 w-40 h-40 rounded-full blur-3xl transition-opacity duration-500 ${
+                 index === 0 || index === 3 ? "bg-accent opacity-20 group-hover:opacity-40" : "bg-ink-100 opacity-50 group-hover:opacity-80"
+              }`} />
+
+              <div className="relative z-10 h-full flex flex-col justify-between">
+                <div>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${
+                    index === 0 || index === 3 ? "bg-paper/10 text-paper" : "bg-ink-900 text-paper"
+                  }`}>
+                    <feature.icon size={24} />
+                  </div>
+                  <h3 className={`text-3xl font-brush mb-4 ${
+                    index === 0 || index === 3 ? "text-paper" : "text-ink-900"
+                  }`}>{feature.title}</h3>
+                  <p className={`font-serif text-lg leading-relaxed ${
+                    index === 0 || index === 3 ? "text-ink-200" : "text-ink-600"
+                  }`}>
+                    {feature.desc}
+                  </p>
+                </div>
+                
+                <div className={`pt-4 border-t ${
+                   index === 0 || index === 3 ? "border-ink-700" : "border-ink-100"
+                }`}>
+                  <p className={`text-sm font-serif ${
+                    index === 0 || index === 3 ? "text-ink-400" : "text-ink-500"
+                  }`}>
+                    {feature.detail}
+                  </p>
+                </div>
               </div>
-              <h3 className="text-2xl font-brush text-ink-900 mb-4">{feature.title}</h3>
-              <p className="text-ink-700 font-serif mb-4 leading-relaxed font-bold">
-                {feature.desc}
-              </p>
-              <p className="text-ink-500 font-serif text-sm leading-relaxed">
-                {feature.detail}
-              </p>
             </motion.div>
           ))}
         </div>
