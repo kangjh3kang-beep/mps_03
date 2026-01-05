@@ -24,6 +24,39 @@ services:
     restart: unless-stopped
 
   # ============================================
+  # Landing Page (Next.js) - Main Entry
+  # ============================================
+  landing-web:
+    build:
+      context: ./apps/landing
+      dockerfile: Dockerfile
+    container_name: manpasik-landing
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+    networks:
+      - manpasik-network
+    restart: unless-stopped
+
+  # ============================================
+  # Admin Web (Next.js)
+  # ============================================
+  admin-web:
+    build:
+      context: ./apps/admin
+      dockerfile: Dockerfile
+    container_name: manpasik-admin
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+    networks:
+      - manpasik-network
+    restart: unless-stopped
+
+  # ============================================
   # Auth Service (Go + PostgreSQL)
   # ============================================
   auth-service:
