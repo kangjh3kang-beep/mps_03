@@ -240,20 +240,6 @@ export default function Home() {
         </motion.div>
       </Section>
 
-      {/* Footer */}
-      <footer className="bg-black text-ink-500 py-12 border-t border-ink-800">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-8 md:mb-0">
-            <h3 className="text-2xl font-brush text-paper mb-2">만파식</h3>
-            <p className="text-sm font-serif">© 2026 Manpasik Ecosystem. All rights reserved.</p>
-          </div>
-          <div className="flex gap-8 text-sm font-serif">
-            <a href="#" className="hover:text-paper transition-colors">이용약관</a>
-            <a href="#" className="hover:text-paper transition-colors">개인정보처리방침</a>
-            <a href="#" className="hover:text-paper transition-colors">문의하기</a>
-          </div>
-        </div>
-      </footer>
-    </main>
+    </div>
   );
 }

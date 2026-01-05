@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 export const metadata: Metadata = {
   title: "만파식 (Manpasik) Ecosystem",
@@ -12,9 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
-      <body className="antialiased bg-paper text-ink-900 selection:bg-ink-900 selection:text-paper">
-        {children}
+    <html lang="ko" className="scroll-smooth">
+      <body className="antialiased bg-paper text-ink-900 selection:bg-ink-900 selection:text-paper flex flex-col min-h-screen">
+        <Navbar />
+        <main className="flex-grow pt-20">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   );
