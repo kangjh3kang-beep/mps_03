@@ -1,3 +1,12 @@
 {
-    "framework": "nextjs"
+  "version": 2,
+  "builds": [
+    {
+      "src": "apps/landing/package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/apps/landing/$1" }
+  ]
 }
