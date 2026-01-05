@@ -3,8 +3,16 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/pages/splash_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
+import '../../features/auth/presentation/pages/two_factor_setup_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/home/presentation/pages/health_score_page.dart';
+import '../../features/home/presentation/pages/real_time_analysis_page.dart';
+import '../../features/home/presentation/pages/recent_measurements_page.dart';
+import '../../features/home/presentation/pages/health_summary_page.dart';
+import '../../features/home/presentation/pages/notifications_page.dart';
+import '../../features/home/presentation/pages/quick_actions_page.dart';
+import '../../features/home/presentation/pages/dashboard_page.dart';
 import '../../features/measurement/presentation/pages/measurement_page.dart';
 import '../../features/measurement/presentation/pages/measurement_steps.dart';
 import '../../features/data_hub/presentation/pages/data_hub_pages.dart';
@@ -22,6 +30,16 @@ import '../../features/settings/presentation/pages/settings_pages.dart';
 import '../../features/settings/presentation/pages/settings_full_pages.dart';
 import '../../features/analysis/presentation/pages/analysis_pages.dart';
 import '../../features/family/presentation/pages/family_pages.dart';
+import '../../features/measurement/presentation/pages/measurement_detail_pages.dart';
+import '../../features/analysis/presentation/pages/analysis_detail_pages.dart';
+import '../../features/coaching/presentation/pages/coaching_full_pages.dart';
+import '../../features/ai_coach/presentation/pages/ai_coach_pages.dart';
+import '../../features/marketplace/presentation/pages/marketplace_core_pages.dart';
+import '../../features/marketplace/presentation/pages/marketplace_extra_pages.dart';
+import '../../features/telemedicine/presentation/pages/telemedicine_full_pages.dart';
+import '../../features/community/presentation/pages/community_full_pages.dart';
+import '../../features/family/presentation/pages/family_full_pages.dart';
+import '../../features/settings/presentation/pages/settings_complete_pages.dart';
 
 /// 완전한 MPS 라우팅 시스템 - 150+ 경로 지원
 /// 기획안 요구사항: 모든 주요 기능에 대한 경로 정의
@@ -54,14 +72,14 @@ class AppRouter {
       GoRoute(
         path: '/forgot-password',
         name: 'forgotPassword',
-        builder: (context, state) => const Placeholder(),
+        builder: (context, state) => const ForgotPasswordPage(),
       ),
       GoRoute(
         path: '/2fa-setup',
         name: 'twoFASetup',
-        builder: (context, state) => const Placeholder(),
+        builder: (context, state) => const TwoFactorSetupPage(),
       ),
-      
+
       // ============================================
       // 2. Main App Shell (홈/대시보드 + 탭 네비게이션)
       // ============================================
@@ -85,32 +103,32 @@ class AppRouter {
               GoRoute(
                 path: 'real-time-analysis',
                 name: 'realTimeAnalysis',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const RealTimeAnalysisPage(),
               ),
               GoRoute(
                 path: 'recent-measurements',
                 name: 'recentMeasurements',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const RecentMeasurementsPage(),
               ),
               GoRoute(
                 path: 'health-summary',
                 name: 'healthSummary',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const HealthSummaryPage(),
               ),
               GoRoute(
                 path: 'notifications',
                 name: 'notifications',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const NotificationsPage(),
               ),
               GoRoute(
                 path: 'quick-actions',
                 name: 'quickActions',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const QuickActionsPage(),
               ),
               GoRoute(
                 path: 'dashboard',
                 name: 'dashboard',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const DashboardPage(),
               ),
             ],
           ),
@@ -168,52 +186,56 @@ class AppRouter {
               GoRoute(
                 path: 'calibration',
                 name: 'calibration',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const CalibrationPage(),
               ),
               GoRoute(
                 path: 'quality-check',
                 name: 'qualityCheck',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const QualityCheckPage(),
               ),
               GoRoute(
                 path: 'interpretation',
                 name: 'interpretation',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const InterpretationPage(),
               ),
               GoRoute(
                 path: 'sharing',
                 name: 'resultSharing',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const ResultSharingPage(),
               ),
               GoRoute(
                 path: 'export',
                 name: 'exportResults',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const ExportPage(),
               ),
               GoRoute(
                 path: 'history',
                 name: 'measurementHistory',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const MeasurementHistoryPage(),
               ),
               GoRoute(
                 path: 'comparison',
                 name: 'resultComparison',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const ResultComparisonPage(),
               ),
               GoRoute(
                 path: 'trending',
                 name: 'trendingAnalysis',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const TrendingAnalysisPage(),
               ),
               GoRoute(
                 path: 'recommendations',
                 name: 'measurementRecommendations',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) =>
+                    const MeasurementRecommendationsPage(),
               ),
               GoRoute(
                 path: 'detail/:id',
                 name: 'measurementDetail',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) {
+                  final id = state.pathParameters['id'];
+                  return MeasurementDetailPage(measurementId: id);
+                },
               ),
             ],
           ),
@@ -249,42 +271,42 @@ class AppRouter {
               GoRoute(
                 path: 'reports',
                 name: 'reports',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const ReportsPage(),
               ),
               GoRoute(
                 path: 'benchmarks',
                 name: 'benchmarks',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const BenchmarksPage(),
               ),
               GoRoute(
                 path: 'insights',
                 name: 'insights',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const InsightsPage(),
               ),
               GoRoute(
                 path: 'predictions',
                 name: 'predictions',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const PredictionsPage(),
               ),
               GoRoute(
                 path: 'anomalies',
                 name: 'anomalies',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const AnomaliesPage(),
               ),
               GoRoute(
                 path: 'drill-down',
                 name: 'drillDown',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const DrillDownPage(),
               ),
               GoRoute(
                 path: 'custom-reports',
                 name: 'customReports',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const CustomReportsPage(),
               ),
               GoRoute(
                 path: 'export',
                 name: 'analysisExport',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const AnalysisExportPage(),
               ),
             ],
           ),
@@ -295,67 +317,68 @@ class AppRouter {
           GoRoute(
             path: '/coaching',
             name: 'coaching',
-            builder: (context, state) => const Placeholder(),
+            builder: (context, state) => const CoachingMainPage(),
             routes: [
               GoRoute(
                 path: 'recommendations',
                 name: 'coachingRecommendations',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) =>
+                    const CoachingRecommendationsPage(),
               ),
               GoRoute(
                 path: 'plans',
                 name: 'healthPlans',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const HealthPlansPage(),
               ),
               GoRoute(
                 path: 'progress',
                 name: 'progressTracking',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const ProgressTrackingPage(),
               ),
               GoRoute(
                 path: 'exercises',
                 name: 'exercises',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const ExercisesPage(),
               ),
               GoRoute(
                 path: 'nutrition',
                 name: 'nutrition',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const NutritionPage(),
               ),
               GoRoute(
                 path: 'sleep',
                 name: 'sleep',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const SleepPage(),
               ),
               GoRoute(
                 path: 'stress',
                 name: 'stressManagement',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const StressManagementPage(),
               ),
               GoRoute(
                 path: 'conversations',
                 name: 'coachingConversations',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const CoachingConversationsPage(),
               ),
               GoRoute(
                 path: 'achievements',
                 name: 'achievements',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const AchievementsPage(),
               ),
               GoRoute(
                 path: 'milestones',
                 name: 'milestones',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const MilestonesPage(),
               ),
               GoRoute(
                 path: 'feedback',
                 name: 'coachingFeedback',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const CoachingFeedbackPage(),
               ),
               GoRoute(
                 path: 'history',
                 name: 'coachingHistory',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const CoachingHistoryPage(),
               ),
             ],
           ),
@@ -366,7 +389,7 @@ class AppRouter {
           GoRoute(
             path: '/ai-coach',
             name: 'aiCoach',
-            builder: (context, state) => const Placeholder(),
+            builder: (context, state) => const AiCoachMainPage(),
             routes: [
               GoRoute(
                 path: 'chat',
@@ -376,27 +399,30 @@ class AppRouter {
               GoRoute(
                 path: 'health-coaching',
                 name: 'healthCoaching',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const HealthCoachingPage(),
               ),
               GoRoute(
                 path: 'environment-coaching',
                 name: 'environmentCoaching',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const EnvironmentCoachingPage(),
               ),
               GoRoute(
                 path: 'predictions',
                 name: 'aiPredictions',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const AiPredictionsPage(),
               ),
               GoRoute(
                 path: 'learning-history',
                 name: 'learningHistory',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const LearningHistoryPage(),
               ),
               GoRoute(
                 path: 'insight/:id',
                 name: 'aiInsight',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) {
+                  final id = state.pathParameters['id'];
+                  return AiInsightDetailPage(insightId: id);
+                },
               ),
             ],
           ),
@@ -407,7 +433,7 @@ class AppRouter {
           GoRoute(
             path: '/marketplace',
             name: 'marketplace',
-            builder: (context, state) => const Placeholder(),
+            builder: (context, state) => const MarketplaceMainPage(),
             routes: [
               // 카트리지몰
               GoRoute(
@@ -440,17 +466,20 @@ class AppRouter {
               GoRoute(
                 path: 'subscriptions',
                 name: 'subscriptions',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const SubscriptionPage(),
               ),
               GoRoute(
                 path: 'subscription/:id',
                 name: 'subscriptionDetail',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) {
+                  final id = state.pathParameters['id'];
+                  return SubscriptionDetailPage(subscriptionId: id);
+                },
               ),
               GoRoute(
                 path: 'cart',
                 name: 'cart',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const CartPage(),
               ),
               GoRoute(
                 path: 'checkout',
@@ -460,72 +489,75 @@ class AppRouter {
               GoRoute(
                 path: 'payment',
                 name: 'payment',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const PaymentPage(),
               ),
               GoRoute(
                 path: 'orders',
                 name: 'orders',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const OrdersPage(),
               ),
               GoRoute(
                 path: 'order/:id',
                 name: 'orderDetail',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) {
+                  final id = state.pathParameters['id'];
+                  return OrderDetailPage(orderId: id);
+                },
               ),
               GoRoute(
                 path: 'tracking',
                 name: 'tracking',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const TrackingPage(),
               ),
               GoRoute(
                 path: 'returns',
                 name: 'returns',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const ReturnsPage(),
               ),
               GoRoute(
                 path: 'reviews',
                 name: 'reviews',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const ReviewsPage(),
               ),
               GoRoute(
                 path: 'wishlist',
                 name: 'wishlist',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const WishlistPage(),
               ),
               GoRoute(
                 path: 'deals',
                 name: 'deals',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const DealsPage(),
               ),
               GoRoute(
                 path: 'bundles',
                 name: 'bundles',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const BundlesPage(),
               ),
               GoRoute(
                 path: 'loyalty',
                 name: 'loyaltyProgram',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const LoyaltyProgramPage(),
               ),
               GoRoute(
                 path: 'rewards',
                 name: 'rewardsStore',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const RewardsStorePage(),
               ),
               GoRoute(
                 path: 'gift-cards',
                 name: 'giftCards',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const GiftCardsPage(),
               ),
               GoRoute(
                 path: 'support',
                 name: 'marketplaceSupport',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const MarketplaceSupportPage(),
               ),
               GoRoute(
                 path: 'invoice',
                 name: 'invoice',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const InvoicePage(),
               ),
             ],
           ),
@@ -536,82 +568,85 @@ class AppRouter {
           GoRoute(
             path: '/telemedicine',
             name: 'telemedicine',
-            builder: (context, state) => const Placeholder(),
+            builder: (context, state) => const TelemedicineMainPage(),
             routes: [
               GoRoute(
                 path: 'doctors',
                 name: 'doctors',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const TelemedicineMainPage(),
               ),
               GoRoute(
                 path: 'doctor/:id',
                 name: 'doctorProfile',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) {
+                  final id = state.pathParameters['id'];
+                  return DoctorProfilePage(doctorId: id);
+                },
               ),
               GoRoute(
                 path: 'appointments',
                 name: 'appointments',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const AppointmentsListPage(),
               ),
               GoRoute(
                 path: 'book-appointment',
                 name: 'bookAppointment',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const AppointmentBookingPage(),
               ),
               GoRoute(
                 path: 'consultation/:id',
                 name: 'consultation',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const VideoConsultationPage(),
               ),
               GoRoute(
                 path: 'video-call/:id',
                 name: 'videoCall',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const VideoConsultationPage(),
               ),
               GoRoute(
                 path: 'prescriptions',
                 name: 'prescriptions',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const PrescriptionsPage(),
               ),
               GoRoute(
                 path: 'medical-records',
                 name: 'medicalRecords',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const MedicalRecordsPage(),
               ),
               GoRoute(
                 path: 'follow-ups',
                 name: 'followUps',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const AppointmentsListPage(),
               ),
               GoRoute(
                 path: 'chat/:doctorId',
                 name: 'doctorChat',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const DoctorChatPage(),
               ),
               GoRoute(
                 path: 'reviews/:doctorId',
                 name: 'doctorReviews',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const ReviewsPage(),
               ),
               GoRoute(
                 path: 'billing',
                 name: 'telemedicineBilling',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const InsuranceClaimPage(),
               ),
               GoRoute(
                 path: 'history',
                 name: 'consultationHistory',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const MedicalRecordsPage(),
               ),
               GoRoute(
                 path: 'support',
                 name: 'telemedicineSupport',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const HelpCenterPage(),
               ),
               GoRoute(
                 path: 'insurance',
                 name: 'insuranceCoverage',
-                builder: (context, state) => const Placeholder(),
+                builder: (context, state) => const InsuranceClaimPage(),
               ),
             ],
           ),
@@ -921,7 +956,7 @@ class AppRouter {
         ],
       ),
     ],
-    
+
     // Error handling
     errorBuilder: (context, state) => ErrorPage(error: state.error),
   );
@@ -967,7 +1002,8 @@ class _MainShellState extends State<MainShell> {
         onDestinationSelected: _navigateTo,
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home), label: '홈'),
-          NavigationDestination(icon: Icon(Icons.health_and_safety), label: '측정'),
+          NavigationDestination(
+              icon: Icon(Icons.health_and_safety), label: '측정'),
           NavigationDestination(icon: Icon(Icons.analytics), label: '분석'),
           NavigationDestination(icon: Icon(Icons.smart_toy), label: 'AI'),
           NavigationDestination(icon: Icon(Icons.shopping_cart), label: '마켓'),
@@ -985,7 +1021,7 @@ class _MainShellState extends State<MainShell> {
 // ============================================
 class ErrorPage extends StatelessWidget {
   final Exception? error;
-  
+
   const ErrorPage({super.key, this.error});
 
   @override
