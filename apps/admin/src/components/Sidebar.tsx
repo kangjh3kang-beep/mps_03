@@ -1,14 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { LayoutDashboard, Cpu, Users, Settings, LogOut, Sun, Moon, Accessibility, Map, BarChart } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { LayoutDashboard, Cpu, Users, Settings, LogOut, Map, BarChart } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { useTheme } from '@/lib/ThemeContext';
 
 export default function Sidebar() {
     const router = useRouter();
-    const { theme, setTheme } = useTheme();
+    const pathname = usePathname();
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -16,85 +16,42 @@ export default function Sidebar() {
     };
 
     return (
-        <aside className="glass" style={{
-            width: '260px',
-            height: 'calc(100vh - 2rem)',
-            margin: '1rem',
-            display: 'flex',
-            flexDirection: 'column',
-            padding: '1.5rem'
-        }}>
-            <div style={{ marginBottom: '3rem' }}>
-                <h1 className="neon-text" style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>MPS CORE</h1>
+        <aside className="w-64 h-[calc(100vh-2rem)] m-4 flex flex-col p-6 ink-card bg-ink-900/50">
+            <div className="mb-10 text-center">
+                <h1 className="text-3xl font-brush text-ink-100">만파식<span className="text-accent-red text-sm align-top ml-1">Admin</span></h1>
+                <p className="text-xs text-ink-500 font-serif mt-1 tracking-widest">ECOSYSTEM CORE</p>
             </div>
 
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
-                <NavItem href="/dashboard" icon={<LayoutDashboard size={20} />} label="대시보드" active />
-                <NavItem href="/ems" icon={<Map size={20} />} label="EMS 관제" />
-                <NavItem href="/analysis" icon={<BarChart size={20} />} label="전문가 분석" />
-                <NavItem href="/devices" icon={<Cpu size={20} />} label="기기 관리" />
-                <NavItem href="/community" icon={<Users size={20} />} label="커뮤니티" />
-                <NavItem href="/settings" icon={<Settings size={20} />} label="설정" />
+            <nav className="flex flex-col gap-2 flex-1">
+                <NavItem href="/dashboard" icon={<LayoutDashboard size={20} />} label="대시보드" active={pathname === '/dashboard'} />
+                <NavItem href="/ems" icon={<Map size={20} />} label="EMS 관제" active={pathname === '/ems'} />
+                <NavItem href="/analysis" icon={<BarChart size={20} />} label="전문가 분석" active={pathname === '/analysis'} />
+                <NavItem href="/devices" icon={<Cpu size={20} />} label="기기 관리" active={pathname === '/devices'} />
+                <NavItem href="/community" icon={<Users size={20} />} label="커뮤니티" active={pathname === '/community'} />
+                <NavItem href="/settings" icon={<Settings size={20} />} label="설정" active={pathname === '/settings'} />
             </nav>
-
-            <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
-                <ThemeButton active={theme === 'light'} onClick={() => setTheme('light')} icon={<Sun size={18} />} />
-                <ThemeButton active={theme === 'dark'} onClick={() => setTheme('dark')} icon={<Moon size={18} />} />
-                <ThemeButton active={theme === 'senior'} onClick={() => setTheme('senior')} icon={<Accessibility size={18} />} />
-            </div>
 
             <button
                 onClick={handleLogout}
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.8rem',
-                    padding: '0.8rem',
-                    color: '#ff4444',
-                    background: 'transparent',
-                    border: 'none',
-                    textAlign: 'left'
-                }}
+                className="flex items-center gap-3 p-3 text-accent-red hover:bg-accent-red/10 rounded-lg transition-colors mt-auto"
             >
                 <LogOut size={20} />
-                <span>로그아웃</span>
+                <span className="font-serif">로그아웃</span>
             </button>
         </aside>
     );
 }
 
-function ThemeButton({ active, onClick, icon }: { active: boolean, onClick: () => void, icon: React.ReactNode }) {
-    return (
-        <button
-            onClick={onClick}
-            style={{
-                padding: '0.5rem',
-                borderRadius: '8px',
-                border: '1px solid var(--border)',
-                background: active ? 'var(--primary)' : 'transparent',
-                color: active ? 'black' : 'var(--text-main)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-            }}
-        >
-            {icon}
-        </button>
-    );
-}
-
 function NavItem({ href, icon, label, active = false }: { href: string, icon: React.ReactNode, label: string, active?: boolean }) {
     return (
-        <Link href={href} style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.8rem',
-            padding: '0.8rem',
-            borderRadius: '8px',
-            background: active ? 'rgba(0, 242, 255, 0.1)' : 'transparent',
-            color: active ? 'var(--primary)' : 'var(--text-dim)',
-            transition: 'all 0.2s'
-        }}>
+        <Link 
+            href={href} 
+            className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-300 font-serif ${
+                active 
+                ? 'bg-ink-800 text-accent-gold border-l-4 border-accent-gold shadow-lg' 
+                : 'text-ink-400 hover:text-ink-100 hover:bg-ink-800/50'
+            }`}
+        >
             {icon}
             <span>{label}</span>
         </Link>

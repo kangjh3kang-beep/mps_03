@@ -27,7 +27,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   }) async {
     try {
       final response = await httpClient.post(
-        '/auth/login',
+        '/api/auth/login',  // API Gateway 라우팅에 맞춤
         data: {
           'email': email,
           'password': password,
@@ -77,7 +77,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   }) async {
     try {
       final response = await httpClient.post(
-        '/auth/signup',
+        '/api/auth/signup',  // API Gateway 라우팅에 맞춤
         data: {
           'email': email,
           'password': password,
@@ -96,7 +96,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   @override
   Future<void> logout() async {
     try {
-      await httpClient.post('/auth/logout');
+      await httpClient.post('/api/auth/logout');  // API Gateway 라우팅에 맞춤
     } catch (e) {
       throw Exception('Logout error: $e');
     }
@@ -105,7 +105,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   @override
   Future<AuthTokenModel> refreshToken() async {
     try {
-      final response = await httpClient.post('/auth/refresh-token');
+      final response = await httpClient.post('/api/auth/refresh');  // API Gateway 라우팅에 맞춤
       final data = response.containsKey('data') ? response['data'] : response;
       return AuthTokenModel.fromJson(data);
     } catch (e) {
@@ -116,7 +116,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   @override
   Future<UserModel> getCurrentUser() async {
     try {
-      final response = await httpClient.get('/auth/me');
+      final response = await httpClient.get('/api/users/me');  // API Gateway 라우팅에 맞춤
       final data = response.containsKey('data') ? response['data'] : response;
       return UserModel.fromJson(data);
     } catch (e) {

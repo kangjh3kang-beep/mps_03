@@ -4,6 +4,9 @@ const jwt = require('jsonwebtoken');
 const Stripe = require('stripe');
 const { Pool } = require('pg');
 
+// 서비스 간 통신 클라이언트
+const { sendNotification } = require('../../shared/service-client');
+
 const app = express();
 const port = process.env.PORT || 3004;
 
@@ -292,6 +295,15 @@ app.post('/api/v1/payments', authenticateToken, async (req, res) => {
       ]
     );
 
+    // 🔗 알림 서비스 연동 - 결제 완료 알림
+    sendNotification(
+      req.user.id,
+      'payment',
+      '💳 결제 완료',
+      `${amount.toLocaleString()} ${currency} 결제가 완료되었습니다.`,
+      { transactionId: txResult.rows[0].transaction_id, amount, currency }
+    ).catch(err => console.error('[Payment→Notification] 알림 전송 실패:', err));
+
     res.status(200).json({
       success: true,
       message: '결제가 완료되었습니다',
@@ -305,6 +317,16 @@ app.post('/api/v1/payments', authenticateToken, async (req, res) => {
     });
   } catch (err) {
     console.error('Error processing payment:', err);
+    
+    // 결제 실패 알림
+    sendNotification(
+      req.user?.id,
+      'payment',
+      '❌ 결제 실패',
+      '결제 처리 중 문제가 발생했습니다.',
+      { error: err.message }
+    ).catch(() => {});
+    
     res.status(500).json({ error: '결제 처리 실패' });
   }
 });

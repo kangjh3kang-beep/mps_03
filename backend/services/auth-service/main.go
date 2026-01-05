@@ -141,12 +141,25 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		// 🔐 토큰 블랙리스트 체크
+		tokenID := tokenString[:32] // 토큰의 처음 32자를 ID로 사용
+		if IsBlacklisted(tokenID) {
+			reason := GetBlacklistReason(tokenID)
+			c.JSON(401, gin.H{
+				"error":  "Token has been revoked",
+				"reason": reason,
+			})
+			c.Abort()
+			return
+		}
+
 		// Parse userID to uint
 		var userID uint
 		fmt.Sscanf(claims.UserID, "%d", &userID)
 		c.Set("userID", userID)
 		c.Set("email", claims.Email)
 		c.Set("role", claims.Role)
+		c.Set("tokenID", tokenID) // 로그아웃 시 사용
 		c.Next()
 	}
 }
@@ -290,6 +303,16 @@ func signupHandler(c *gin.Context) {
 
 // Logout handler
 func logoutHandler(c *gin.Context) {
+	// 🔐 토큰을 블랙리스트에 등록
+	authHeader := c.GetHeader("Authorization")
+	if authHeader != "" && len(authHeader) > 7 {
+		tokenString := authHeader[7:]
+		tokenID := tokenString[:32] // 토큰의 처음 32자를 ID로 사용
+		
+		// 토큰 만료 시간까지 블랙리스트에 유지 (기본 1시간)
+		BlacklistToken(tokenID, time.Hour, "logout")
+	}
+
 	c.JSON(200, AuthResponse{
 		Success: true,
 		Message: "Logout successful",

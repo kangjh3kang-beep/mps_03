@@ -1,21 +1,29 @@
-/// Mock API 서버 설정
+/// API Gateway 서버 설정
 /// 
-/// 이 파일은 개발/테스트 환경에서 사용할 Mock API 서버의 설정을 관리합니다.
-/// 프로덕션 환경에서는 실제 백엔드 API로 변경해야 합니다.
+/// 이 파일은 API Gateway를 통한 백엔드 연결 설정을 관리합니다.
+/// 모든 API 요청은 API Gateway(포트 8080)를 통해 라우팅됩니다.
 
 class ApiConfig {
   /// API 서버 기본 주소
   /// 
-  /// 개발: http://localhost:5000 (Mock 서버)
+  /// 개발: http://localhost:8080 (API Gateway)
+  /// 스테이징: https://staging-api.manpasik.com
   /// 프로덕션: https://api.manpasik.com (실제 서버)
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://localhost:5000',
+    defaultValue: 'http://localhost:8080',
   );
+  
+  /// API 버전 접두사
+  static const String apiPrefix = '/api/v1';
 
   /// 전체 API URL 생성
+  /// endpoint가 /api/v1로 시작하지 않으면 자동으로 접두사 추가
   static String getApiUrl(String endpoint) {
-    return '$baseUrl$endpoint';
+    if (endpoint.startsWith('/api/')) {
+      return '$baseUrl$endpoint';
+    }
+    return '$baseUrl$apiPrefix$endpoint';
   }
 
   /// API 타임아웃 설정 (밀리초)
@@ -45,7 +53,7 @@ class ApiConfig {
   static String getBaseUrlForEnvironment(Environment env) {
     switch (env) {
       case Environment.development:
-        return 'http://localhost:5000';
+        return 'http://localhost:8080';  // API Gateway
       case Environment.staging:
         return 'https://staging-api.manpasik.com';
       case Environment.production:

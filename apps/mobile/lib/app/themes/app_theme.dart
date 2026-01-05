@@ -74,123 +74,166 @@ class LocaleState extends Equatable {
 // 앱 테마 정의
 // ============================================
 
+import 'package:google_fonts/google_fonts.dart';
+
 class AppTheme {
-  // 라이트 테마
-  static ThemeData get lightTheme {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF00BCD4), // Cyan
-        brightness: Brightness.light,
+  // ============================================
+  // Dark Ink (흑묵) Design System
+  // ============================================
+  
+  // Colors
+  static const Color inkBlack = Color(0xFF0A0A0A);   // Deepest Black (Background)
+  static const Color inkDark = Color(0xFF1A1A1A);    // Dark Gray (Cards)
+  static const Color inkMedium = Color(0xFF2A2A2A);  // Medium Gray (Borders)
+  static const Color paperWhite = Color(0xFFF5F5F5); // Off-white (Text)
+  static const Color accentGold = Color(0xFFD4AF37); // Gold (Active/Highlight)
+  static const Color accentRed = Color(0xFFB22222);  // Red (Stamp/Alert)
+  
+  // Text Styles
+  static TextTheme get _textTheme {
+    return GoogleFonts.notoSerifKrTextTheme().copyWith(
+      displayLarge: GoogleFonts.nanumBrushScript(
+        color: paperWhite,
+        fontSize: 56,
       ),
-      appBarTheme: const AppBarTheme(
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+      displayMedium: GoogleFonts.nanumBrushScript(
+        color: paperWhite,
+        fontSize: 42,
       ),
-      cardTheme: CardTheme(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+      displaySmall: GoogleFonts.nanumBrushScript(
+        color: paperWhite,
+        fontSize: 32,
       ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
+      headlineLarge: GoogleFonts.notoSerifKr(
+        color: paperWhite,
+        fontWeight: FontWeight.bold,
       ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
+      bodyLarge: GoogleFonts.notoSerifKr(
+        color: paperWhite,
       ),
-      inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        filled: true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Color(0xFF00BCD4),
-        unselectedItemColor: Colors.grey,
+      bodyMedium: GoogleFonts.notoSerifKr(
+        color: paperWhite.withOpacity(0.8),
       ),
     );
   }
 
-  // 다크 테마
+  // 라이트 테마 (Not used in Dark Ink system, but kept for compatibility)
+  static ThemeData get lightTheme {
+    return darkTheme; // Force Dark Mode for consistency
+  }
+
+  // 다크 테마 (Main Theme)
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF00BCD4), // Cyan
-        brightness: Brightness.dark,
+      scaffoldBackgroundColor: inkBlack,
+      primaryColor: accentGold,
+      
+      // Color Scheme
+      colorScheme: const ColorScheme.dark(
+        primary: accentGold,
+        secondary: accentRed,
+        surface: inkDark,
+        background: inkBlack,
+        onPrimary: inkBlack,
+        onSecondary: paperWhite,
+        onSurface: paperWhite,
+        onBackground: paperWhite,
       ),
-      scaffoldBackgroundColor: const Color(0xFF0A0E21),
-      appBarTheme: const AppBarTheme(
+
+      // Typography
+      textTheme: _textTheme,
+
+      // AppBar
+      appBarTheme: AppBarTheme(
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Color(0xFF0A0E21),
-        foregroundColor: Colors.white,
+        backgroundColor: inkBlack,
+        foregroundColor: paperWhite,
+        titleTextStyle: GoogleFonts.nanumBrushScript(
+          fontSize: 28,
+          color: paperWhite,
+        ),
+        iconTheme: const IconThemeData(color: paperWhite),
       ),
+
+      // Card
       cardTheme: CardTheme(
-        elevation: 4,
-        color: const Color(0xFF1D1E33),
+        elevation: 0,
+        color: inkDark.withOpacity(0.6),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: Colors.white.withOpacity(0.1)),
         ),
       ),
+
+      // Buttons
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          backgroundColor: inkDark,
+          foregroundColor: accentGold,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
+            side: const BorderSide(color: accentGold),
+          ),
+          textStyle: GoogleFonts.notoSerifKr(
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
+
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          foregroundColor: paperWhite,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          side: BorderSide(color: Colors.white.withOpacity(0.2)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),
+
+      // Inputs
       inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: inkDark,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
-        filled: true,
-        fillColor: const Color(0xFF1D1E33),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: accentGold),
+        ),
+        labelStyle: TextStyle(color: paperWhite.withOpacity(0.6)),
+        hintStyle: TextStyle(color: paperWhite.withOpacity(0.4)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
+
+      // Navigation Bar
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Color(0xFF0A0E21),
-        selectedItemColor: Color(0xFF00BCD4),
+        backgroundColor: inkBlack,
+        selectedItemColor: accentGold,
         unselectedItemColor: Colors.grey,
+        selectedLabelStyle: TextStyle(fontFamily: 'Noto Serif KR', fontSize: 12),
+        unselectedLabelStyle: TextStyle(fontFamily: 'Noto Serif KR', fontSize: 12),
+      ),
+      
+      // Floating Action Button
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: accentGold,
+        foregroundColor: inkBlack,
       ),
     );
   }
-
-  // Medical Futurism 스타일 컬러
-  static const Color neonCyan = Color(0xFF00BCD4);
-  static const Color neonAmber = Color(0xFFFFAB00);
-  static const Color darkBackground = Color(0xFF0A0E21);
-  static const Color cardDark = Color(0xFF1D1E33);
-  static const Color successGreen = Color(0xFF4CAF50);
-  static const Color warningOrange = Color(0xFFFF9800);
-  static const Color criticalRed = Color(0xFFF44336);
 }
 
 // ============================================

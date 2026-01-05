@@ -11,7 +11,7 @@ class ReportsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    // Theme removed as it was unused
 
     return Scaffold(
       appBar: AppBar(
@@ -253,7 +253,7 @@ class InsightsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    // Theme removed as it was unused
 
     return Scaffold(
       appBar: AppBar(title: const Text('AI 인사이트')),

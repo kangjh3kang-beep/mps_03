@@ -10,6 +10,12 @@ const bodyParser = require('body-parser');
 const { v4: uuidv4 } = require('uuid');
 const { addHours, subDays, format } = require('date-fns');
 
+// 서비스 간 통신 클라이언트
+const { requestAICoaching, sendNotification } = require('../../shared/service-client');
+
+// MongoDB 연결 모듈
+const { connectDB, getConnectionStatus } = require('./db');
+
 const app = express();
 const PORT = process.env.PORT || 8002;
 
@@ -122,11 +128,16 @@ initializeData();
 // ============================================
 
 app.get('/health', (req, res) => {
+  const dbStatus = getConnectionStatus();
   res.json({
     status: 'ok',
     service: 'measurement-service',
     timestamp: new Date().toISOString(),
-    version: '1.0.0'
+    version: '1.0.0',
+    database: {
+      mongodb: dbStatus,
+      inMemoryFallback: dbStatus !== 'connected'
+    }
   });
 });
 
@@ -169,6 +180,23 @@ app.post('/api/measurements', (req, res) => {
 
     // 트렌드 업데이트
     updateTrends(userId);
+
+    // 🔗 AI 코칭 서비스 연동 (비동기 호출 - 응답 대기 안함)
+    requestAICoaching(userId, [measurement])
+      .then(aiResult => {
+        if (aiResult && aiResult.riskLevel === 'critical') {
+          // 위험 수준이 높으면 알림 전송
+          sendNotification(
+            userId,
+            'health_alert',
+            '⚠️ 건강 경고',
+            'AI가 즉각적인 주의가 필요한 상황을 감지했습니다.',
+            { measurementId: measurement.id, riskLevel: aiResult.riskLevel }
+          );
+        }
+        console.log(`[AI Integration] 사용자 ${userId} AI 코칭 완료`);
+      })
+      .catch(err => console.error('[AI Integration] AI 코칭 호출 실패:', err));
 
     res.status(201).json({
       success: true,
@@ -643,8 +671,13 @@ function identifyPositives(score) {
 // 서버 시작
 // ============================================
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`\n🏥 Measurement Service running on port ${PORT}`);
+  
+  // MongoDB 연결 시도
+  await connectDB();
+  console.log(`💾 Database: ${getConnectionStatus()}`);
+  
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`📈 Endpoints:`);
   console.log(`   POST   /api/measurements`);

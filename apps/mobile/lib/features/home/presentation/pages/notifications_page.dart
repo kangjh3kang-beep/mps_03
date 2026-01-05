@@ -30,7 +30,7 @@ class _NotificationsPageState extends State<NotificationsPage>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    // Theme removed as it was unused
 
     return Scaffold(
       appBar: AppBar(

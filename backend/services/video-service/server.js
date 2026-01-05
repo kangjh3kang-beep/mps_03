@@ -4,6 +4,9 @@ const axios = require('axios');
 const { Pool } = require('pg');
 const crypto = require('crypto');
 
+// 서비스 간 통신 클라이언트
+const { sendNotification } = require('../../shared/service-client');
+
 const app = express();
 const port = process.env.PORT || 3006;
 
@@ -249,6 +252,20 @@ app.post('/api/v1/video-sessions/:id/start', authenticateToken, async (req, res)
       [req.params.id, req.user.id, 'participant']
     );
 
+    // 🔗 알림 서비스 연동 - 화상상담 시작 알림
+    const session = result.rows[0];
+    const recipientId = session.initiator_id === req.user.id 
+      ? session.recipient_id 
+      : session.initiator_id;
+    
+    sendNotification(
+      recipientId,
+      'video',
+      '📹 화상상담 시작',
+      '화상상담이 시작되었습니다. 지금 참여하세요.',
+      { sessionId: req.params.id, channelName: session.channel_name }
+    ).catch(err => console.error('[Video→Notification] 알림 전송 실패:', err));
+
     res.json({
       success: true,
       message: '세션이 시작되었습니다',
@@ -288,6 +305,21 @@ app.post('/api/v1/video-sessions/:id/end', authenticateToken, async (req, res) =
       'UPDATE video_participants SET left_at = NOW() WHERE session_id = $1 AND user_id = $2',
       [req.params.id, req.user.id]
     );
+
+    // 🔗 알림 서비스 연동 - 화상상담 종료 알림
+    const session = result.rows[0];
+    const recipientId = session.initiator_id === req.user.id 
+      ? session.recipient_id 
+      : session.initiator_id;
+    
+    const durationMin = Math.floor(duration / 60);
+    sendNotification(
+      recipientId,
+      'video',
+      '📹 화상상담 종료',
+      `화상상담이 종료되었습니다. (${durationMin}분)`,
+      { sessionId: req.params.id, duration }
+    ).catch(err => console.error('[Video→Notification] 알림 전송 실패:', err));
 
     res.json({
       success: true,

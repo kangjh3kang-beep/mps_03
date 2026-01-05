@@ -2,39 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&family=Noto+Serif+KR:wght@300;400;700&display=swap');
+
 :root {
-  --background: #0A0A0A;
-  --foreground: #EDEDED;
+  --ink-950: #0a0a0a;
+  --ink-900: #1a1a1a;
+  --ink-800: #2a2a2a;
+  --ink-100: #f5f5f5;
+  --accent-gold: #d4af37;
+  --accent-red: #b22222;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--ink-100);
+  background-color: var(--ink-950);
+  background-image: url("https://www.transparenttextures.com/patterns/black-paper.png");
+  font-family: "Noto Serif KR", serif;
 }
 
-/* Glassmorphism Utilities */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ink-950);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ink-800);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-gold);
 }
 
-.glass-card {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+/* Ink Components */
+.ink-card {
+  background: rgba(26, 26, 26, 0.6);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
-/* Neon Glow Effects */
-.neon-text-cyan {
-  text-shadow: 0 0 10px rgba(0, 229, 255, 0.7);
+.ink-card:hover {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
 }
 
-.neon-border-cyan {
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
-  border-color: #00E5FF;
+.ink-border-bottom {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.text-gold {
+  color: var(--accent-gold);
+}
+
+.text-stamp {
+  color: var(--accent-red);
+  font-family: "Nanum Brush Script", cursive;
 }
